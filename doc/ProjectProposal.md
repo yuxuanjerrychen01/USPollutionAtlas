@@ -37,8 +37,7 @@ We will use models to generate pollution prediction for the future, and portray 
 We will use algorithms that utilize our large dataset to generate interesting visualizations of pollution, such as heat maps, State maps, US country maps, and so on. Users can visualize different combinations of pollution components (NO2, SO2, CO, and O3) in each state, county, or city. We aim for real-time graph generation instead of preprocessed graph generation, so we can take into account the user's new data and use them for graphical visualization.
 
 ### A Low-Fidelity UI Mockup
-still working on this part 
-
+![example1](https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/Low-Fidelity%20UI%20Mockup.jpg)
 
 ### Work Distribution
 We have decided to divide the team into Frontend, Backend, and Fullstack. Yuxuan Chen will be the Frontend, Xiaoci Huang will be the Backend, and Zihan Ming and Michael Ortiz will be Fullstack. The Fullstack developers will help the Frontend and Backend. That said, everyone on the team will help each other if needed. (The truth is that everyone will be more or less Fullstack!)
