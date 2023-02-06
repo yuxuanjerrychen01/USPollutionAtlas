@@ -12,6 +12,7 @@ The main part of our web app will be an interactive choropleth with a series of 
 - The user will be able to search an address, and we will filter the database to only include elements from that particular area
 - The user will also be able to select between viewing county, state, and national level data
 - The user will be able to select between different types of pollutants
+
 We will also have various buttons and/or separate pages that will enable users to insert, delete, and update their own pollution data into our database. These changes will, of course, be reflected in our front end visualizations. We will support uploading new data in bulk to the server, most likely using a formatted file type such as a CSV, as well as the ability to upload individual rows. For updating and deletion, we will allow the user to view the dataset and make changes through the UI.
 
 
