@@ -59,11 +59,11 @@ We have decided to divide the team into Frontend, Backend, and Fullstack. Yuxuan
     4. Develop an API for handling user selected parameters  
     5. Develop a model to make the prediction of pollution for the future  
   - __Possible Languages/Tools/Libraries:__  
-      JavaScript  
-      MySQL (or MongoDB)  
-      Node.js  
-      Express.js  
-      D3.js  
-      Plotly  
-      Python  
-      React.js  
+    1. JavaScript  
+    2. MySQL (or MongoDB)  
+    3. Node.js  
+    4. Express.js  
+    5. D3.js  
+    6. Plotly  
+    7. Python  
+    8. React.js  
