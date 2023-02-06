@@ -8,7 +8,12 @@ Our team selects US Pollution Data from Kaggle (https://www.kaggle.com/datasets/
 The US Pollution Atlas will provide the user with an interactive graphical interface for navigating the large and complex US Pollution Dataset as a baseline, including functionality for users to read, obtain, update, insert, and delete specific pollution data. The user will be able to toggle many different parameters and search by location and time in order to derive insights into pollution data within the US at many levels of detail. For example, we will provide functionality for visualizing national, state, and local (specifically county) level pollution data for different types of pollutants such as NO2, SO2, CO, and O3.
 
 ### Description
-description
+The main part of our web app will be an interactive choropleth with a series of UI elements for toggling various parameters. CRUD operations will be available through said UI elements. Search bars and buttons will enable various search queries on the backend that will be reflected through our data visualization elements which center around the choropleth, but will also include statistical visualizations. Some planned features related to data selection include:
+- The user will be able to search an address, and we will filter the database to only include elements from that particular area
+- The user will also be able to select between viewing county, state, and national level data
+- The user will be able to select between different types of pollutants
+We will also have various buttons and/or separate pages that will enable users to insert, delete, and update their own pollution data into our database. These changes will, of course, be reflected in our front end visualizations. We will support uploading new data in bulk to the server, most likely using a formatted file type such as a CSV, as well as the ability to upload individual rows. For updating and deletion, we will allow the user to view the dataset and make changes through the UI.
+
 
 ### Usefulness
 Our project mainly focuses on the visualization of the US pollution in every state. For education use, our projects can find the pollution data for the researchers who do not have strong technical skills. The researchers can use our project for their own research area. They can also update the dataset by their new output in their research. Also, our project can alarm people in the heavily polluted areas to protect their home. 
