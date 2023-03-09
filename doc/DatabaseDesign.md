@@ -2,7 +2,13 @@
 ### Team079 TruePikachu
 ##
 ### Data Definition Language (DDL) commands
+
+For our project, we have created a _**USPollutionAtlas1**_ database with 6 tables **location**, **dates**, **SO2**, **CO**, **NO2**, and **O3**. Below are our current DDL commands.
+
+The **SO2**, **NO2**, **CO**, and **O3** tables store our primary pollutant data information. They all contain their own _PollutantID, AQI, MEAN, MAXVAL, MAXHOUR, FIPSCODE, YMD_. The **Location** table stores the location where the pollutant data was recorded, using _FIPSCODE_ as the primary key. The **Date** table stores the date when the pollutant data was recorded, using _YMD_ as the primary key. An example of _YMD_ would be "20010721". We will implement other tables such as the **UserLogin** table in later stages.
   
+The file [PollutionDatabaseSQL](https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/PollutionDatabaseSQL.sql) is the SQL file we used to upload to Google Cloud Platform (GCP), and contains the DDL commands below as well as the actual inserted data. We created the PollutionDatabaseSQL file by doing data filtering and data formating using Python Pandas. The filter and format code can be found in our [data_filter](https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/tree/main/data_filer) folder.
+
 ```
 CREATE DATABASE `USPollutionAtlas1`;
 USE `USPollutionAtlas1`;
@@ -109,12 +115,24 @@ CREATE TABLE `O3` (
 )
 ```
 
-The above are our current DDL commands for our project. We have created a _**USPollutionAtlas1**_ database with 6 tables **location**, **dates**, **SO2**, **CO**, **NO2**, and **O3**. 
-
-The **SO2**, **NO2**, **CO**, and **O3** tables store our primary pollutant data information. They all contain their own _PollutantID, AQI, MEAN, MAXVAL, MAXHOUR, FIPSCODE, YMD_. The **Location** table which stores the location where the pollutant data was recorded, using _FIPSCODE_ as the primary key. The **Date** table which stores the date when the pollutant data was recorded, using _YMD_ as the primary key. An example of _YMD_ would be "20010721". We will implement other tables such as the **UserLogin** table in later stages.
-  
-The file [PollutionDatabaseSQL](https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/PollutionDatabaseSQL.sql) is the SQL file we used to upload to Google Cloud Platform (GCP), and contains the above DDL commands as well as the actual inserted data. We created the PollutionDatabaseSQL file by doing data filtering and data formating using Python Pandas. The filter and format code can be found in our [data_filter](https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/tree/main/data_filer) folder.
-
 ### Connection to GCP
+  
+Our GCP project is called cs411-TruePikachu. Below is a screenshot of our overview page.  
 
+<img src="https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/DatabaseDesignImg/main1.png" alt="main1" width="80%" />
 
+We use MySQL Workbench 8.0 CE as a graphical user interface.  
+
+<img src="https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/DatabaseDesignImg/bench1.png" alt="bench1" width="80%" />
+
+This cloud shell terminal screenshot also shows our database and its current tables.  
+
+<img src="https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/DatabaseDesignImg/terminal1.png" alt="terminal1" width="70%" />
+
+### Data Insertion
+
+For this stage, we have currently inserted 10000 rows of data into the **CO** table, 10000 rows of data into the **SO2** table, 10000 rows of data into the **NO2** table, 10000 rows of data into the **O3** table, 5996 rows of data into the **dates** table, and 139 rows of data into the **location** table. The rows of data we inserted into the tables have all been filtered and formatted correctly. We may plan to insert more data for our next stage.  
+
+<img src="https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/DatabaseDesignImg/terminal2.png" alt="terminal2" width="50%" />
+
+### Advanced Queries
