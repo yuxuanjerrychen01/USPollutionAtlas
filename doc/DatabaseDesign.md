@@ -136,3 +136,46 @@ For this stage, we have currently inserted 10000 rows of data into the **CO** ta
 <img src="https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/DatabaseDesignImg/terminal2.png" alt="terminal2" width="50%" />
 
 ### Advanced Queries
+
+Below are 2 advanced queries we implemented for future stage usage.  
+
+- _**the maximum AQIs of the four pollutants of every county ever**_
+  - There are 27 rows representing 27 places (counties), all showing the highest AQI of the four pollutants that that place has ever had. (After we insert more data, we should have more places, thus more rows.)
+  - We choose to create index on CO(CO AQI), CO(FIPSCODE), and CO(YMD) respectively to try to achieve speed in time. 
+    - CO(CO AQI) since we are finding the max of CO AQI, and can represent SO2, NO2, O3 AQI speed up
+    - CO(FIPSCODE) since we are focusing on locations
+    - CO(YMD) since we natural joined dates
+   - After comparing with the original EXPLAIN ANALYZE, we do not see significant difference in time speedup. Some, after indexing, were even slower. We believe that these three indexing choices do not speed up the natural join of the tables. After the natural join, indexing of CO(CO AQI), CO(FIPSCODE), or CO(YMD) do not matter any more. The indexing shown in EXPLAIN ANALYZE belong the the PRIMARY indexing, which already existed since they are the primary keys of the corresponding tables.  
+
+```
+SELECT FIPSCODE, MAX(`CO AQI`), MAX(`O3 AQI`), MAX(`SO2 AQI`), MAX(`NO2 AQI`)
+FROM CO NATURAL JOIN O3 NATURAL JOIN SO2 NATURAL JOIN NO2 NATURAL JOIN dates
+GROUP BY FIPSCODE;
+```
+<img src="https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/DatabaseDesignImg/query1.png" alt="query1" width="85%" />
+<img src="https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/DatabaseDesignImg/query1_1.png" alt="query1_1" width="85%" />
+<img src="https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/DatabaseDesignImg/query1_2.png" alt="query1_2" width="85%" />
+<img src="https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/DatabaseDesignImg/query1_3.png" alt="query1_3" width="85%" />
+<img src="https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/DatabaseDesignImg/query1_4.png" alt="query1_4" width="85%" />
+
+- _**the counties that have an average NO2 pollution value greater than the total average NO2 pollution value**_
+  - There are 13 rows representing 13 places (counties) and their average NO2 Pollution value. (After we insert more data, we should have more places, thus more rows.)
+  - We choose to create index on NO2(NO2 MEAN), location(CountyName), and location(FIPSCODE, CountyName) respectively to try to achieve speed in time. 
+    - NO2(NO2 MEAN) since we are finding the average of the column called `NO2 MEAN`
+    - location(CountyName) since we are focusing on locations
+    - location(FIPSCODE, CountyName) since we are focusing on locations, and location(CountyName) did not work, so we tried indexing on tuples
+   - After comparing with the original EXPLAIN ANALYZE, indexing on NO2(NO2 MEAN) sped things up, though not too much. We believe that this is because instead of instead of doing table scan on NO2, after adding the index, we were able to index scan on NO2 using idx2, which sped things up a bit. We believe that with more data inserted, there will be more significant speed up.
+   - After comparing with the original EXPLAIN ANALYZE, we do not see significant difference in time speedup regarding indexing on location(CountyName) or location(FIPSCODE, CountyName). We believe that these two indexing choices do not speed up the natural join of the tables, and after the natural join, indexing of location(CountyName) or location(FIPSCODE, CountyName) do not matter any more. 
+
+```
+SELECT CountyName, AVG(`NO2 MEAN`) as AverageNO2
+FROM location NATURAL JOIN NO2 
+GROUP BY CountyName
+HAVING AVG(`NO2 MEAN`) > (SELECT AVG(`NO2 MEAN`) FROM NO2);
+```
+<img src="https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/DatabaseDesignImg/query2.png" alt="query2" width="85%" />
+<img src="https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/DatabaseDesignImg/query2_1.png" alt="query2_1" width="85%" />
+<img src="https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/DatabaseDesignImg/query2_2.png" alt="query2_2" width="85%" />
+<img src="https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/DatabaseDesignImg/query2_3.png" alt="query2_3" width="85%" />
+<img src="https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu/blob/main/doc/DatabaseDesignImg/query2_4.png" alt="query2_4" width="85%" />
+
