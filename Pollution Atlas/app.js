@@ -7,40 +7,28 @@ const router = express.Router();
 const mysql = require('mysql2');
 
 // create the connection to database
-const connection =  mysql.createConnection({
-    host: '34.122.96.91',
-    user: 'root',
-    password: 'cs411truepikachu'
-   // database: 'test'
-});
-
-connection.query(
-    "USE USPollutionAtlas1",
-    function(err, results, fields) {
-        // console.log(err);
-        // console.log(results); // results contains rows returned by server
-        // console.log(fields); // fields contains extra meta data about results, if available
-    }
-);
-
-connection.query(
-    "SELECT *  FROM location",
-    function(err, results, fields) {
-        console.log(err);
-        console.log(results); // results contains rows returned by server
-       // console.log(fields); // fields contains extra meta data about results, if available
-    }
-);
-
-// connection.execute(
-//     'SELECT CountyName FROM Location',
-//     ['Rick C-137'],
-//     function(err, results, fields) {
-//         console.log(results); // results contains rows returned by server
-//         console.log(fields); // fields contains extra meta data about results, if available
+// const connection =  mysql.createConnection({
+//     host: '34.122.96.91',
+//     user: 'root',
+//     password: 'cs411truepikachu'
+//    // database: 'test'
+// });
 //
-//         // If you execute same statement again, it will be picked from a LRU cache
-//         // which will save query preparation time and give better performance
+// connection.query(
+//     "USE USPollutionAtlas1",
+//     function(err, results, fields) {
+//         // console.log(err);
+//         // console.log(results); // results contains rows returned by server
+//         // console.log(fields); // fields contains extra meta data about results, if available
+//     }
+// );
+
+// connection.query(
+//     "SELECT *  FROM location",
+//     function(err, results, fields) {
+//         console.log(err);
+//         console.log(results); // results contains rows returned by server
+//        // console.log(fields); // fields contains extra meta data about results, if available
 //     }
 // );
 
@@ -50,7 +38,7 @@ connection.query(
 
 //add the router
 app.use('/', router);
-app.listen(process.env.port || 3000, console.info(`App listening `));
+
 
 app.get('/',(req,res) => {
     res.sendFile(path.join(__dirname+'/Frontend/index.html'));
@@ -67,20 +55,21 @@ app.get('/',(req,res) => {
  * }
  */
 app.get('/search', (req, res) => {
-    params = req.query;
-    if(Object.keys(params).length <= 0)
+    let params = req.query;
+    if(Object.keys(params).length <= 0) {
         res.sendStatus(400);
         return;
+    }
+     // build the FROM clause
+    let fromString = "FROM ";
     const pollutants = Object.entries(params).filter(([key, value]) =>
         key === 'NO2' || key === 'O3' || key === 'SO2' || key === 'CO');
 
-    let fromString = "FROM ";
-
     if(pollutants.length <= 0) {
-        fromString += "NO2 NATURAL JOIN CO NATURAL JOIN SO2 NATURAL JOIN O3";
+        fromString += "NO2 NATURAL JOIN CO NATURAL JOIN SO2 NATURAL JOIN O3 ";
     }
     else if(pollutants.length === 1) {
-        fromString = pollutants[0][0];
+        fromString += `${pollutants[0][0]} `;
     }
     else {
         pollutants.forEach((e, i) => {
@@ -91,8 +80,28 @@ app.get('/search', (req, res) => {
         });
     }
     fromString += "NATURAL JOIN Location ";
+
+    // Build the WHERE clause
+    let whereString = "WHERE ";
     const locations = Object.entries(params).filter(([key, value]) =>
         key === 'CountyName' || key === 'CityName' || key === 'FIPSCODE');
 
+    if(locations.length <= 0)
+        whereString = "";
+    else if(locations.length === 1) {
+        whereString += `${locations[0][0]} = ${locations[0][1]}`;
+    }
+    else {
+        locations.forEach((e,i) => {
+            if(i === locations.length - 1)
+                whereString += `${e[0]} = ${e[1]} `
+            else
+                whereString += `${e[0]} = ${e[1]} AND `
+        });
+    }
 
+    let query = `SELECT * ${fromString}${whereString}`
+    console.log(query)
+    res.send(query)
 })
+app.listen(process.env.port || 3000, console.info(`App listening `));
