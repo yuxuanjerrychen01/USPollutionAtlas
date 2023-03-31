@@ -94,14 +94,23 @@ app.get('/search', (req, res) => {
     else {
         locations.forEach((e,i) => {
             if(i === locations.length - 1)
-                whereString += `${e[0]} = ${e[1]} `
+                whereString += `${e[0]} = ${e[1]} `;
             else
-                whereString += `${e[0]} = ${e[1]} AND `
+                whereString += `${e[0]} = ${e[1]} AND `;
         });
     }
 
-    let query = `SELECT * ${fromString}${whereString}`
-    console.log(query)
-    res.send(query)
+    let query = `SELECT * ${fromString}${whereString}`;
+    console.log(query);
+    res.send(query);
 })
+app.put('/update', (req,res) => {
+
+});
+app.put('/delete', (req, res) => {
+
+});
+app.put('/insert', (req, res) => {
+
+});
 app.listen(process.env.port || 3000, console.info(`App listening `));
