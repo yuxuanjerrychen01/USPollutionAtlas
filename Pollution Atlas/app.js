@@ -3,6 +3,7 @@ const express = require('express')
 const app = express()
 const path = require('path');
 const router = express.Router();
+router.use(express.json());
 // get the client
 const mysql = require('mysql2');
 
@@ -45,14 +46,20 @@ app.get('/',(req,res) => {
 });
 
 /**
- * Returns DB tuples for 1 to all pollutants at the county or state level
+ * Returns a SQL query for DB tuples for 1 to all pollutants at the county, state or FIPSCODE level
  * Expected format for req.query:
  * {
- *     "NO2": 1,
- *     "CountyName" : "Champaign",
- *     "FIPS" : "43134"
+ *     <Pollutant>: 1,
+ *     <Location> : <LocationName>,
  *     ....
  * }
+ * Example JSON:
+ * {
+ *     "NO2" : 1,
+ *     "FIPSCODE: 55132
+ * }
+ * Will return SQL Query:
+ * SELECT * FROM NO2 NATURAL JOIN Location WHERE FIPSCODE = 55132
  */
 app.get('/search', (req, res) => {
     let params = req.query;
@@ -104,7 +111,48 @@ app.get('/search', (req, res) => {
     console.log(query);
     res.send(query);
 })
+/**
+ * Updates tables in the DB
+ * Expected format for req.query:
+ * {
+ *      "UPDATE": {
+ *          <Table> : 1
+ *      }
+ *
+ *      "SET": {
+ *          <ColumnName> : <NewValue>
+ *           .
+ *           .
+ *           .
+ *      }
+ *
+ *      "WHERE": {
+ *          <ColumnName> : <Condition>
+ *      }
+ * }
+ * Example JSON:
+ * {
+ *      "UPDATE": {
+ *          "NO2" : 1
+ *      }
+ *
+ *      "SET": {
+ *          "NO2Mean" : 20.0
+ *      }
+ *
+ *      "WHERE": {
+ *          "FIPSCODE" : "= 55012"
+ *      }
+ * }
+ * Will return SQL Query:
+ * UPDATE NO2 SET NO2Mean = 20.0 WHERE FIPSCODE = 55012
+ */
 app.put('/update', (req,res) => {
+    const update = req.body["UPDATE"];
+    const set = req.body["SET"];
+    const where = req.body["WHERE"];
+    console.log(req.body);
+    res.send("RECEIVED")
 
 });
 app.put('/delete', (req, res) => {
