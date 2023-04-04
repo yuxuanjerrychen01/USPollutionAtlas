@@ -3,6 +3,9 @@ const express = require('express')
 const app = express()
 const path = require('path');
 const router = express.Router();
+const cors = require('cors')
+
+app.use(cors)
 router.use(express.json());
 // get the client
 const mysql = require('mysql2');
@@ -42,7 +45,7 @@ app.use('/', router);
 
 
 app.get('/',(req,res) => {
-    res.sendFile(path.join(__dirname+'/Frontend/index.html'));
+   // res.sendFile(path.join(__dirname+'/Frontend/index.html'));
 });
 
 /**
@@ -56,7 +59,7 @@ app.get('/',(req,res) => {
  * Example JSON:
  * {
  *     "NO2" : 1,
- *     "FIPSCODE: 55132
+ *     "FIPSCODE: [value]
  * }
  * Will return SQL Query:
  * SELECT * FROM NO2 NATURAL JOIN Location WHERE FIPSCODE = 55132
