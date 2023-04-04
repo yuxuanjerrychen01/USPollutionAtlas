@@ -4,12 +4,26 @@ const app = express()
 const path = require('path');
 const router = express.Router();
 const cors = require('cors')
+require('dotenv').config()
 
-app.use(cors)
 router.use(express.json());
 // get the client
 const mysql = require('mysql2');
 
+const corsOpts = {
+    origin: '*',
+
+    methods: [
+        'GET',
+        'PUT',
+    ],
+
+    allowedHeaders: [
+        'Content-Type',
+    ],
+};
+
+app.use(cors(corsOpts));
 // create the connection to database
 // const connection =  mysql.createConnection({
 //     host: '34.122.96.91',
@@ -42,10 +56,11 @@ const mysql = require('mysql2');
 
 //add the router
 app.use('/', router);
-
+// app.use(cors)
 
 app.get('/',(req,res) => {
    // res.sendFile(path.join(__dirname+'/Frontend/index.html'));
+    res.send('HELLO WORLD')
 });
 
 /**
@@ -164,4 +179,4 @@ app.put('/delete', (req, res) => {
 app.put('/insert', (req, res) => {
 
 });
-app.listen(process.env.port || 3000, console.info(`App listening `));
+app.listen(process.env.PORT || 3002, console.info(`App listening on port ${process.env.PORT}`));
