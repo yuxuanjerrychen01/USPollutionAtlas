@@ -79,56 +79,127 @@ app.get('/',(req,res) => {
  * Will return SQL Query:
  * SELECT * FROM NO2 NATURAL JOIN Location WHERE FIPSCODE = 55132
  */
-app.get('/search', (req, res) => {
-    let params = req.query;
-    if(Object.keys(params).length <= 0) {
-        res.sendStatus(400);
-        return;
-    }
-     // build the FROM clause
-    let fromString = "FROM ";
-    const pollutants = Object.entries(params).filter(([key, value]) =>
-        key === 'NO2' || key === 'O3' || key === 'SO2' || key === 'CO');
 
-    if(pollutants.length <= 0) {
+/**
+ * Expected format for JSON:
+ * {
+ *     "SELECT": {
+ *         <field> : 1
+ *          ...
+ *     },
+ *
+ *     "FROM": {
+ *         <tableName> : 1,
+ *         ...
+ *     },
+ *
+ *     "WHERE": {
+ *         <field>: value
+ *         ...
+ *     }
+ * }
+ */
+app.put('/basicSearch', (req, res) => {
+   let select = req.body["SELECT"];
+   let from = req.body["FROM"];
+   let where = req.body["WHERE"];
+
+   const selectArray = Object.entries(select);
+   const fromArray = Object.entries(from);
+   const whereArray = Object.entries(where);
+
+   // Build select string
+   let selectString = 'SELECT ';
+   if (Object.keys(select).length <= 0)
+       selectString = 'SELECT * ';
+   selectArray.forEach((e, i)=> {
+       // console.log(`${key[0]}${key[1]}`);
+       if (i === selectArray.length - 1)
+           selectString += `${e[0]} `;
+       else
+           selectString += `${e[0]}, `;
+   });
+
+   // Build from string
+    let fromString = "FROM ";
+
+    if(fromArray.length <= 0) {
         fromString += "NO2 NATURAL JOIN CO NATURAL JOIN SO2 NATURAL JOIN O3 ";
     }
-    else if(pollutants.length === 1) {
-        fromString += `${pollutants[0][0]} `;
-    }
-    else {
-        pollutants.forEach((e, i) => {
-            if(i === pollutants.length - 1)
-                fromString += `${e[0]} `;
-            else
-                fromString += `${e[0]} NATURAL JOIN `;
-        });
-    }
-    fromString += "NATURAL JOIN Location ";
+    fromArray.forEach((e, i) => {
+        if(i === fromArray.length - 1)
+            fromString += `${e[0]} `;
+        else
+            fromString += `${e[0]} NATURAL JOIN `;
+    });
+    fromString += "NATURAL JOIN Location NATURAL JOIN dates ";
 
-    // Build the WHERE clause
+    // Build where string
     let whereString = "WHERE ";
-    const locations = Object.entries(params).filter(([key, value]) =>
-        key === 'CountyName' || key === 'CityName' || key === 'FIPSCODE');
-
-    if(locations.length <= 0)
+    if(whereArray.length <= 0)
         whereString = "";
-    else if(locations.length === 1) {
-        whereString += `${locations[0][0]} = ${locations[0][1]}`;
-    }
-    else {
-        locations.forEach((e,i) => {
-            if(i === locations.length - 1)
-                whereString += `${e[0]} = ${e[1]} `;
-            else
-                whereString += `${e[0]} = ${e[1]} AND `;
-        });
-    }
 
-    let query = `SELECT * ${fromString}${whereString}`;
+    whereArray.forEach((e,i) => {
+        if(i === whereArray.length - 1)
+            whereString += `${e[0]} = ${e[1]} `;
+        else
+            whereString += `${e[0]} = ${e[1]} AND `;
+    });
+    const query = `${selectString}${fromString}${whereString}`;
     console.log(query);
     res.send(query);
-})
+
+});
+// app.get('/search', (req, res) => {
+//     let params = req.query;
+//     if(Object.keys(params).length <= 0) {
+//         res.sendStatus(400);
+//         return;
+//     }
+//      // build the FROM clause
+//     let fromString = "FROM ";
+//     const pollutants = Object.entries(params).filter(([key, value]) =>
+//         key === 'NO2' || key === 'O3' || key === 'SO2' || key === 'CO');
+//
+//     if(pollutants.length <= 0) {
+//         fromString += "NO2 NATURAL JOIN CO NATURAL JOIN SO2 NATURAL JOIN O3 ";
+//     }
+//     else if(pollutants.length === 1) {
+//         fromString += `${pollutants[0][0]} `;
+//     }
+//     else {
+//         pollutants.forEach((e, i) => {
+//             if(i === pollutants.length - 1)
+//                 fromString += `${e[0]} `;
+//             else
+//                 fromString += `${e[0]} NATURAL JOIN `;
+//         });
+//     }
+//     fromString += "NATURAL JOIN Location ";
+//
+//     // Build the WHERE clause
+//     let whereString = "WHERE ";
+//     const locations = Object.entries(params).filter(([key, value]) =>
+//         key === 'CountyName' || key === 'CityName' || key === 'FIPSCODE');
+//
+//     if(locations.length <= 0)
+//         whereString = "";
+//     else if(locations.length === 1) {
+//         whereString += `${locations[0][0]} = ${locations[0][1]}`;
+//     }
+//     else {
+//         locations.forEach((e,i) => {
+//             if(i === locations.length - 1)
+//                 whereString += `${e[0]} = ${e[1]} `;
+//             else
+//                 whereString += `${e[0]} = ${e[1]} AND `;
+//         });
+//     }
+//
+//     let query = `SELECT * ${fromString}${whereString}`;
+//     console.log(query);
+//     res.send(query);
+// })
 /**
  * Updates tables in the DB
  * Expected format for req.query:
@@ -159,19 +230,19 @@ app.get('/search', (req, res) => {
  *      }
  *
  *      "WHERE": {
- *          "FIPSCODE" : "= 55012"
+ *          "FIPSCODE" : [l, 412323]
  *      }
  * }
  * Will return SQL Query:
  * UPDATE NO2 SET NO2Mean = 20.0 WHERE FIPSCODE = 55012
  */
 app.put('/update', (req,res) => {
-    const update = req.body["UPDATE"];
-    const set = req.body["SET"];
-    const where = req.body["WHERE"];
-    console.log(req.body);
-    res.send("RECEIVED")
-
+    // const update = req.body["UPDATE"];
+    // const set = req.body["SET"];
+    // const where = req.body["WHERE"];
+    // console.log(req.body);
+    // let table = Object.keys(update)[0];
+    // print(table);
 });
 app.put('/delete', (req, res) => {
 
