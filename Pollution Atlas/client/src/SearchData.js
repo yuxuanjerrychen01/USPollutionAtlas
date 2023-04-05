@@ -1,12 +1,15 @@
 import { useState } from "react";
 import axios from "axios";
+import Table from "./Table";
 
 function SearchData( {onBack} ) {
     const [data, setData] = useState("");
     const [FIPSText, setFIPSText] = useState("e.g. 017019");
-    const [dateText, setDateText] = useState("e.g. yyyymmdd");
-    const [polluText, setPolluText] = useState("e.g. CO");
-    const [select1, setSelect1] = useState("");
+    // const [dateText, setDateText] = useState("e.g. yyyymmdd");
+    // const [polluText, setPolluText] = useState("e.g. CO");
+    // const [select1, setSelect1] = useState("");
+    const [basicSearch, setBasicSearch] = useState(0);
+    const [table, setTable] = useState("");
 
     const handleFIPSChange = (event) => {
         setFIPSText(event.target.value);
@@ -15,75 +18,86 @@ function SearchData( {onBack} ) {
     const handleFIPSSubmit = async (event) => {
         event.preventDefault();
         const response = await axios.put("http://localhost:3001/basicSearch", {
-            // withCredentials: false,
-            // params:
-                
-                    "SELECT": {
-                        "`SO2 AQI`": 1,
-                        "`CO AQI`": 1
-                    },
-                    "FROM": {
-                        "SO2": 1,
-                        "CO": 1
-                    },
-                    "WHERE": {
-                        "StateName": "'Nevada'"
-                    }
-                
+            "SELECT": {},
+            "FROM": {},
+            "WHERE": {
+                "FIPSCODE": `${FIPSText}`
+            }
         });
-        console.log(response);
-        console.log(response.data[0]);
-        const data1 = response.data[0][`CO AQI`]
-        const data2 = response.data[0][`SO2 AQI`]
-        let output = `CO AQI: ${data1}, SO2 AQI: ${data2}`;
-        setData(output);
+        const data_array = response.data;
+        const thing = <Table dataEntry={data_array}/>
+        // let str = "YMD &nbsp CountyName \n";
+        // console.log(data_array);
+        // const listItems = data_array.map(
+        //     (d) => {
+        //         str += d[`YMD`]
+        //         str += " &nbsp &nbsp &nbsp &nbsp &nbsp "
+        //         str += d[`StateName`]
+        //         str += " &nbsp &nbsp &nbsp &nbsp &nbsp "
+        //         str += d[`CountyName`]
+        //         str += " &nbsp &nbsp &nbsp &nbsp &nbsp "
+        //         str += d[`CO MAXHOUR`]
+        //         str += " &nbsp &nbsp &nbsp &nbsp &nbsp "
+        //         str += d[`CO MAXVAL`]
+        //         str += " &nbsp &nbsp &nbsp &nbsp &nbsp "
+        //         str += d[`CO MEAN`]
+        //         str += " &nbsp &nbsp &nbsp &nbsp &nbsp "
+        //         str += d[`CO AQI`]
+        //         str += "\n"
+        //         return(d); 
+        //     }
+        // );
+        // console.log(str);
+        // const str_format = str.replace(/\n/g, "<br />");
+        setData("str_format");
+        setTable(thing);
     };
 
-    const handleDateChange = (event) => {
-        setDateText(event.target.value);
-    };
+    // const handleDateChange = (event) => {
+    //     setDateText(event.target.value);
+    // };
 
-    const handleDateSubmit = (event) => {
-        event.preventDefault();
-        // connect to sql, request for info
-        setData("heuuu");
-    };
+    // const handleDateSubmit = (event) => {
+    //     event.preventDefault();
+    //     // connect to sql, request for info
+    //     setData("heuuu");
+    // };
 
-    const handlePolluChange = (event) => {
-        setPolluText(event.target.value);
-    };
+    // const handlePolluChange = (event) => {
+    //     setPolluText(event.target.value);
+    // };
 
-    const handlePolluSubmit = (event) => {
-        event.preventDefault();
-        if (polluText === "CO") {
-            // connect to sql, request for info
-            setData("co");
-        } else if (polluText === "NO2") {
-            // connect to sql, request for info
-            setData("no2");
-        } else if (polluText === "SO2") {
-            // connect to sql, request for info
-            setData("so2");
-        } else if (polluText === "O3") {
-            // connect to sql, request for info
-            setData("o3");
-        } else {
-            setData("Not a valid pollutant name.");
-        }
-    };
+    // const handlePolluSubmit = (event) => {
+    //     event.preventDefault();
+    //     if (polluText === "CO") {
+    //         // connect to sql, request for info
+    //         setData("co");
+    //     } else if (polluText === "NO2") {
+    //         // connect to sql, request for info
+    //         setData("no2");
+    //     } else if (polluText === "SO2") {
+    //         // connect to sql, request for info
+    //         setData("so2");
+    //     } else if (polluText === "O3") {
+    //         // connect to sql, request for info
+    //         setData("o3");
+    //     } else {
+    //         setData("Not a valid pollutant name.");
+    //     }
+    // };
 
     const handleBackClick = () => {
         onBack();
     };
 
-    const handleSelectChange = (event) => {
-        setSelect1(event.target.value);
-    }
+    // const handleSelectChange = (event) => {
+    //     setSelect1(event.target.value);
+    // }
 
-    const handleSelectSubmit = (event) => {
-        event.preventDefault();
-        setData(select1);
-    }
+    // const handleSelectSubmit = (event) => {
+    //     event.preventDefault();
+    //     setData(select1);
+    // }
 
     return (
         <div>
@@ -107,7 +121,7 @@ function SearchData( {onBack} ) {
                 <br></br>
             </form>
 
-            <br></br>
+            {/* <br></br>
 
             <form onSubmit={handleDateSubmit}>
                 <label>
@@ -157,12 +171,14 @@ function SearchData( {onBack} ) {
                     submit
                 </button>
                 <br></br>
-            </form>
+            </form> */}
 
             <br></br>
 
             <h2>Results:</h2>
-            {data}
+            {/* <p dangerouslySetInnerHTML={{__html: data}} /> */}
+            {table}
+
 
         </div>
     )
