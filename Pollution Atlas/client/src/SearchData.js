@@ -3,10 +3,10 @@ import axios from "axios";
 import Table from "./Table";
 
 function SearchData( {onBack} ) {
-    const [data, setData] = useState("");
+    // const [data, setData] = useState("");
     const [FIPSText, setFIPSText] = useState("e.g. 017019");
-    // const [dateText, setDateText] = useState("e.g. yyyymmdd");
-    // const [polluText, setPolluText] = useState("e.g. CO");
+    const [dateText, setDateText] = useState("e.g. yyyymmdd");
+    const [polluText, setPolluText] = useState("e.g. CO");
     // const [select1, setSelect1] = useState("");
     const [basicSearch, setBasicSearch] = useState(0);
     const [table, setTable] = useState("");
@@ -26,65 +26,73 @@ function SearchData( {onBack} ) {
         });
         const data_array = response.data;
         const thing = <Table dataEntry={data_array}/>
-        // let str = "YMD &nbsp CountyName \n";
-        // console.log(data_array);
-        // const listItems = data_array.map(
-        //     (d) => {
-        //         str += d[`YMD`]
-        //         str += " &nbsp &nbsp &nbsp &nbsp &nbsp "
-        //         str += d[`StateName`]
-        //         str += " &nbsp &nbsp &nbsp &nbsp &nbsp "
-        //         str += d[`CountyName`]
-        //         str += " &nbsp &nbsp &nbsp &nbsp &nbsp "
-        //         str += d[`CO MAXHOUR`]
-        //         str += " &nbsp &nbsp &nbsp &nbsp &nbsp "
-        //         str += d[`CO MAXVAL`]
-        //         str += " &nbsp &nbsp &nbsp &nbsp &nbsp "
-        //         str += d[`CO MEAN`]
-        //         str += " &nbsp &nbsp &nbsp &nbsp &nbsp "
-        //         str += d[`CO AQI`]
-        //         str += "\n"
-        //         return(d); 
-        //     }
-        // );
-        // console.log(str);
-        // const str_format = str.replace(/\n/g, "<br />");
-        setData("str_format");
         setTable(thing);
     };
 
-    // const handleDateChange = (event) => {
-    //     setDateText(event.target.value);
-    // };
+    const handleDateChange = (event) => {
+        setDateText(event.target.value);
+    };
 
-    // const handleDateSubmit = (event) => {
-    //     event.preventDefault();
-    //     // connect to sql, request for info
-    //     setData("heuuu");
-    // };
+    const handleDateSubmit = async (event) => {
+        event.preventDefault();
+        const response = await axios.put("http://localhost:3001/basicSearch", {
+            "SELECT": {},
+            "FROM": {},
+            "WHERE": {
+                "YMD": `${dateText}`
+            }
+        });
+        const data_array = response.data;
+        const thing = <Table dataEntry={data_array}/>
+        setTable(thing);
+    };
 
-    // const handlePolluChange = (event) => {
-    //     setPolluText(event.target.value);
-    // };
+    const handlePolluChange = (event) => {
+        setPolluText(event.target.value);
+    };
 
-    // const handlePolluSubmit = (event) => {
-    //     event.preventDefault();
-    //     if (polluText === "CO") {
-    //         // connect to sql, request for info
-    //         setData("co");
-    //     } else if (polluText === "NO2") {
-    //         // connect to sql, request for info
-    //         setData("no2");
-    //     } else if (polluText === "SO2") {
-    //         // connect to sql, request for info
-    //         setData("so2");
-    //     } else if (polluText === "O3") {
-    //         // connect to sql, request for info
-    //         setData("o3");
-    //     } else {
-    //         setData("Not a valid pollutant name.");
-    //     }
-    // };
+    const handlePolluSubmit = async (event) => {
+        event.preventDefault();
+        if (polluText === "CO") {
+            const response = await axios.put("http://localhost:3001/basicSearch", {
+                "SELECT": {},
+                "FROM": {"CO" : 1},
+                "WHERE": {}
+            });
+            const data_array = response.data;
+            const thing = <Table dataEntry={data_array}/>
+            setTable(thing);
+        } else if (polluText === "NO2") {
+            const response = await axios.put("http://localhost:3001/basicSearch", {
+                "SELECT": {},
+                "FROM": {"CO" : 1},
+                "WHERE": {}
+            });
+            const data_array = response.data;
+            const thing = <Table dataEntry={data_array}/>
+            setTable(thing);
+        } else if (polluText === "SO2") {
+            const response = await axios.put("http://localhost:3001/basicSearch", {
+                "SELECT": {},
+                "FROM": {"CO" : 1},
+                "WHERE": {}
+            });
+            const data_array = response.data;
+            const thing = <Table dataEntry={data_array}/>
+            setTable(thing);
+        } else if (polluText === "O3") {
+            const response = await axios.put("http://localhost:3001/basicSearch", {
+                "SELECT": {},
+                "FROM": {"CO" : 1},
+                "WHERE": {}
+            });
+            const data_array = response.data;
+            const thing = <Table dataEntry={data_array}/>
+            setTable(thing);
+        } else {
+            setTable("Not a valid pollutant name.");
+        }
+    };
 
     const handleBackClick = () => {
         onBack();
@@ -111,7 +119,7 @@ function SearchData( {onBack} ) {
             
             <form onSubmit={handleFIPSSubmit}>
                 <label>
-                    Search using FIPS. A valid example would be 017019 (which is Champaign Illinois).
+                    Search using FIPS. A valid example would be 25025 (which is Suffolk, Massachusetts).
                 </label>
                 <br></br>
                 <input onChange={handleFIPSChange} value={FIPSText}/>
@@ -121,7 +129,7 @@ function SearchData( {onBack} ) {
                 <br></br>
             </form>
 
-            {/* <br></br>
+            <br></br>
 
             <form onSubmit={handleDateSubmit}>
                 <label>
@@ -139,7 +147,7 @@ function SearchData( {onBack} ) {
 
             <form onSubmit={handlePolluSubmit}>
                 <label>
-                    Search using pollutant. We store CO, NO2, SO2, O3.
+                    Search using pollutant. We store CO, NO2, SO2, O3. Note that this might take at least 20 seconds to render.
                 </label>
                 <br></br>
                 <input onChange={handlePolluChange} value={polluText}/>
@@ -149,7 +157,7 @@ function SearchData( {onBack} ) {
                 <br></br>
             </form>
 
-            <br></br>
+            {/* <br></br>
 
             <h2>More detailed search.</h2>
 
