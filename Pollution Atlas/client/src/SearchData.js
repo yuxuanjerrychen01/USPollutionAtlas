@@ -94,6 +94,18 @@ function SearchData( {onBack} ) {
         }
     };
 
+    const handleBasicSubmit = async (event) => {
+        event.preventDefault();
+        const response = await axios.put("http://localhost:3001/basicSearch", {
+            "SELECT": {},
+            "FROM": {},
+            "WHERE": {}
+        });
+        const data_array = response.data;
+        const thing = <Table dataEntry={data_array}/>
+        setTable(thing);
+    };
+
     const handleBackClick = () => {
         onBack();
     };
@@ -153,6 +165,19 @@ function SearchData( {onBack} ) {
                 <input onChange={handlePolluChange} value={polluText}/>
                 <button>
                     submit
+                </button>
+                <br></br>
+            </form>
+
+            <br></br>
+
+            <form onSubmit={handleBasicSubmit}>
+                <label>
+                    Want to just see everything? Note that this might take at least 30 seconds to render.
+                </label>
+                <br></br>
+                <button>
+                    search everything
                 </button>
                 <br></br>
             </form>
