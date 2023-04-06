@@ -32,7 +32,7 @@ function DatabasePage() {
     const searchBlock = (<div>
         <h2>Search Pollutant Data</h2>
         Want to search for existing data?
-            <button onClick={handleSearchClick}>
+            <button className="button-blue" onClick={handleSearchClick}>
                 look for data!
             </button>
     </div>)
@@ -40,7 +40,7 @@ function DatabasePage() {
     const insertBlock = (<div>
         <h2>Insert Pollutant Data</h2>
         Want to insert new data?
-            <button onClick={handleInsertClick}>
+            <button className="button-blue" onClick={handleInsertClick}>
                 add new data!
             </button>
     </div>)
@@ -48,7 +48,7 @@ function DatabasePage() {
     const updateBlock = (<div>
         <h2>Update Pollutant Data</h2>
         Want to update existing data?
-            <button onClick={handleUpdateClick}>
+            <button className="button-blue" onClick={handleUpdateClick}>
                 change old data!
             </button>
     </div>)
@@ -56,7 +56,7 @@ function DatabasePage() {
     const deleteBlock = (<div>
         <h2>Delete Pollutant Data</h2>
         Want to delete wrong data?
-            <button onClick={handleDeleteClick}>
+            <button className="button-blue" onClick={handleDeleteClick}>
                 remove error data!
             </button>
     </div>)
