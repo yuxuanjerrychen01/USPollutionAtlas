@@ -126,6 +126,45 @@ app.put('/basicSearch', (req, res) => {
             res.send(results);
     });
 });
+/**
+ * Going to replace the old search
+ * Expected format for JSON:
+ * {
+ *     "SELECT": [<field1>, <field2>, ...],
+ *     "FROM": [<table1>, <table2>, ...],
+ *     "WHERE": {
+ *         <field>: value
+ *         ...
+ *     }
+ * }
+ * Example JSON:
+ * {
+ *      "SELECT": ["a","b","c"],
+ *      "FROM": ["NO2", "SO3"],
+ *      "WHERE": {
+ *          "NO2MEAN" : 20.0,
+ *          "AQI" : 5
+ *      }
+ * }
+ */
+app.put('/basicSearchNew', (req,res) => {
+    const query = req.body;
+    let select = query["SELECT"].length <= 0 ? 'SELECT *\n' : `SELECT ${query["SELECT"].join(', ')}\n`;
+    let from = `FROM ${query["FROM"].join(" NATURAL JOIN ")} NATURAL JOIN location NATURAL JOIN dates\n`;
+    let where = `WHERE ${Object.entries(query["WHERE"]).map(k => {return `${k[0]} = ${k[1]}`}).join(' AND ')}`;
+    let dbQuery = `${select}${from}${where};`;
+    console.log(dbQuery);
+    res.send(dbQuery);
+    // query.forEach((q) => {
+    //     let update = `UPDATE ${q["UPDATE"]}`;
+    //     let set = Object.entries(q["SET"]).map(k => {return `${k[0]} = ${k[1]}`});
+    //     let where = Object.entries(q["WHERE"]).map(k => { return `${k[0]} = ${k[1]}`});
+    //     dbQuery += `${update}\nSET ${set.join(', ')}\nWHERE ${where.join(' AND ')};\n`;
+    // });
+    // dbQuery += `COMMIT;`;
+    // console.log(dbQuery);
+    // res.send(dbQuery);
+});
 
 /**
  * Updates tables in the DB
@@ -242,6 +281,7 @@ app.put('/insert', (req, res) => {
     const query = req.body["QUERY"];
     let dbQuery = `BEGIN TRANSACTION;\n`;
     query.forEach((q) => {
+        // zip source: stack overflow
         const zip = (...arr) => Array(Math.max(...arr.map(a => a.length))).fill().map((_,i) => arr.map(a => a[i]));
         let columnNames = Object.keys(q["VALUES"]);
         let formattedValues = zip(...Object.values(q["VALUES"])).map(e => {return `(${e.toString()})`});
