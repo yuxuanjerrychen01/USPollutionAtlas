@@ -162,47 +162,44 @@ app.put('/basicSearch', (req, res) => {
 
 /**
  * Updates tables in the DB
- * Expected format for req.query:
+ * Expected format for req.body:
  * {
- *      "UPDATE": {
- *          <Table> : 1
- *      }
- *
- *      "SET": {
- *          <ColumnName> : <NewValue>
- *           .
- *           .
- *           .
- *      }
- *
- *      "WHERE": {
- *          <ColumnName> : <Condition>
- *      }
+ *  "QUERY":
+ *  [
+ *      {"UPDATE": <Table>, "SET" : {<ColumnName> : <NewValue>, ...}, "WHERE" : {<ColumnName> : <Condition>, ...}},
+ *      {"UPDATE": <Table>, "SET" : {<ColumnName> : <NewValue>, ...}, "WHERE" : {<ColumnName> : <Condition>, ...}},
+ *      ...
+ *  ]
  * }
- * Example JSON:
+ * Example Query:
  * {
- *      "UPDATE": {
- *          "NO2" : 1
- *      }
- *
- *      "SET": {
- *          "NO2Mean" : 20.0
- *      }
- *
- *      "WHERE": {
- *          "FIPSCODE" : [l, 412323]
- *      }
+ *     "QUERY":  [
+ *         {"UPDATE": "NO2", "SET": {"COL1":"VAL1", "COL2":"VAL2"}, "WHERE": {"COL11":"VAL12", "COL22":"VAL22"}},
+ *         {"UPDATE": "O3", "SET": {"COL1":"VAL1", "COL2":"VAL2"}, "WHERE": {"COL11":"VAL12", "COL22":"VAL22"}}
+ *     ]
  * }
- * Will return SQL Query:
- * UPDATE NO2 SET NO2Mean = 20.0 WHERE FIPSCODE = 55012
+ * Returns:
+ * BEGIN TRANSACTION;
+ * UPDATE NO2
+ * SET COL1 = VAL1, COL2 = VAL2
+ * WHERE COL11 = VAL12 AND COL22 = VAL22;
+ * UPDATE O3
+ * SET COL1 = VAL1, COL2 = VAL2
+ * WHERE COL11 = VAL12 AND COL22 = VAL22;
+ * COMMIT;
  */
 app.put('/update', (req,res) => {
-    // const update = req.body["UPDATE"];
-    // const set = req.body["SET"];
-    // const where = req.body["WHERE"];
-    // console.log(req.body);
-    // let table = Object.keys(update)[0];
-    // print(table);
+    const query = req.body["QUERY"];
+    let dbQuery = `BEGIN TRANSACTION;\n`
+    query.forEach((q) => {
+        let update = `UPDATE ${q["UPDATE"]}`;
+        let set = Object.entries(q["SET"]).map(k => {return `${k[0]} = ${k[1]}`});
+        let where = Object.entries(q["WHERE"]).map(k => { return `${k[0]} = ${k[1]}`})
+        dbQuery += `${update}\nSET ${set.join(', ')}\nWHERE ${where.join(' AND ')};\n`
+    });
+    dbQuery += `COMMIT;`;
+    console.log(dbQuery);
+    res.send(dbQuery)
 });
 app.put('/delete', (req, res) => {
 
