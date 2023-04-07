@@ -62,24 +62,6 @@ app.get('/',(req,res) => {
    // res.sendFile(path.join(__dirname+'/Frontend/index.html'));
     res.send('HELLO WORLD')
 });
-
-/**
- * Returns a SQL query for DB tuples for 1 to all pollutants at the county, state or FIPSCODE level
- * Expected format for req.query:
- * {
- *     <Pollutant>: 1,
- *     <Location> : <LocationName>,
- *     ....
- * }
- * Example JSON:
- * {
- *     "NO2" : 1,
- *     "FIPSCODE: [value]
- * }
- * Will return SQL Query:
- * SELECT * FROM NO2 NATURAL JOIN Location WHERE FIPSCODE = 55132
- */
-
 /**
  * Expected format for JSON:
  * {
@@ -162,7 +144,7 @@ app.put('/basicSearch', (req, res) => {
 
 /**
  * Updates tables in the DB
- * Expected format for req.body:
+ * Expected format for JSON:
  * {
  *  "QUERY":
  *  [
@@ -201,8 +183,44 @@ app.put('/update', (req,res) => {
     console.log(dbQuery);
     res.send(dbQuery)
 });
-app.put('/delete', (req, res) => {
 
+/**
+ * Deletes from tables in the DB
+ * Expected format for JSON:
+ * {
+ *  "QUERY":
+ *  [
+ *      {"DELETE": <Table>, "WHERE" : {<ColumnName> : <Condition>, ...}},
+ *      {"DELETE": <Table>, "WHERE" : {<ColumnName> : <Condition>, ...}},
+ *      ...
+ *  ]
+ * }
+ * Example Query:
+ * {
+ *     "QUERY":  [
+ *         {"DELETE": "NO2", "WHERE": {"COL11":"VAL12", "COL22":"VAL22"}},
+ *         {"UPDATE": "O3", "WHERE": {"COL11":"VAL12", "COL22":"VAL22"}}
+ *     ]
+ * }
+ * Returns:
+ * BEGIN TRANSACTION;
+ * DELETE FROM NO2
+ * WHERE COL11 = VAL12 AND COL22 = VAL22;
+ * DELETE FROM O3
+ * WHERE COL11 = VAL12 AND COL22 = VAL22;
+ * COMMIT;
+ */
+app.put('/delete', (req, res) => {
+    const query = req.body["QUERY"];
+    let dbQuery = `BEGIN TRANSACTION;\n`
+    query.forEach((q) => {
+        let del = `DELETE FROM ${q["DELETE"]}`;
+        let where = Object.entries(q["WHERE"]).map(k => { return `${k[0]} = ${k[1]}`})
+        dbQuery += `${del}\nWHERE ${where.join(' AND ')};\n`
+    });
+    dbQuery += `COMMIT;`;
+    console.log(dbQuery);
+    res.send(dbQuery)
 });
 app.put('/insert', (req, res) => {
 
