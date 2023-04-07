@@ -8,15 +8,38 @@ function App() {
        setLogin(1);
     }
 
-    const introduction = <p className="centering">
-        This dataset contains detailed, everyday data of four major pollutants (Nitrogen Dioxide, Sulphur Dioxide, Carbon Monoxide and Ozone) of US Pollution from 2000 to 2016 documented by US EPA.
-    </p>
+    const introduction = <div>
+        <p className="centering-p">
+        This dataset contains detailed, everyday data of four major pollutants 
+        (Nitrogen Dioxide, Sulphur Dioxide, Carbon Monoxide and Ozone) of US Pollution from 2000 to 2016 documented by US EPA.
+        <br></br> <br></br>
+        There are 6 main tables in our database.
+        </p>
+        <p className="centering-p">
+        <b>Dates: &nbsp; </b> Year, Month, Day
+        </p>
+        <p className="centering-p">
+        <b>Location: &nbsp; </b> FIPSCODE, State Name, County Name
+        </p>
+        <p className="centering-p">
+        <b>CO Pollutant: &nbsp; </b> CO Mean, CO Max Value, CO Max Hour, CO AQI
+        </p>
+        <p className="centering-p">
+        <b>SO2 Pollutant: &nbsp; </b> SO2 Mean, SO2 Max Value, SO2 Max Hour, SO2 AQI
+        </p>
+        <p className="centering-p">
+        <b>NO2 Pollutant: &nbsp; </b> NO2 Mean, NO2 Max Value, NO2 Max Hour, NO2 AQI
+        </p>
+        <p className="centering-p">
+        <b>O3 Pollutant: &nbsp; </b> O3 Mean, O3 Max Value, O3 Max Hour, O3 AQI
+        </p> 
+    </div>
 
     let landpage = <div>
         {introduction}
         <br></br>
-        <div className="centering">
-        <button onClick={handleClick}>
+        <div className="centering-h1">
+        <button onClick={handleClick} className="button-blue">
             Login!
         </button>
         </div>
@@ -27,7 +50,7 @@ function App() {
 
     return (
         <div>
-            <h1 className="centering">US Pollution Atlas</h1>
+            <h1 className="centering-h1">US Pollution Atlas</h1>
 
             {landpage}
         </div>
