@@ -8,7 +8,7 @@ function SearchData( {onBack} ) {
     const [dateText, setDateText] = useState("e.g. yyyymmdd");
     const [polluText, setPolluText] = useState("e.g. CO");
 
-    const [selectText, setSelectText] = useState("e.g. SO2 MEAN");
+    const [selectText, setSelectText] = useState("e.g. `SO2 MEAN`");
     const [fromText, setFromText] = useState("e.g. SO2");
     const [whereText1, setWhereText1] = useState("e.g. FIPSCODE");
     const [whereText2, setWhereText2] = useState("e.g. 25025");
@@ -75,16 +75,17 @@ function SearchData( {onBack} ) {
 
     const handleDateSubmit = async (event) => {
         event.preventDefault();
-        const response = await axios.put("http://localhost:3001/basicSearch", {
-            "SELECT": {},
-            "FROM": {},
+        const response = await axios.put("http://localhost:3001/basicSearchNew", {
+            "SELECT": [],
+            "FROM": [],
             "WHERE": {
                 "YMD": `${dateText}`
             }
         });
         const data_array = response.data;
-        const thing = <Table dataEntry={data_array}/>
-        setTable(thing);
+        console.log(response);
+        // const thing = <Table dataEntry={data_array}/>
+        // setTable(thing);
     };
 
     const handlePolluChange = (event) => {
