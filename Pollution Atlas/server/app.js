@@ -8,8 +8,9 @@ require('dotenv').config()
 
 router.use(express.json());
 // get the client
-const mysql = require('mysql2');
-
+const mysql = require('mysql2/promise');
+// const db = require('mysql2/promise');
+// const mysql = require('mysql2');
 const corsOpts = {
     origin: '*',
 
@@ -22,24 +23,25 @@ const corsOpts = {
         'Content-Type',
     ],
 };
-
 app.use(cors(corsOpts));
 // create the connection to database
-const connection =  mysql.createConnection({
+const pool = mysql.createPool({
     host: '34.122.96.91',
     user: 'root',
     password: 'cs411truepikachu'
    // database: 'test'
 });
+// const db = require(path.resolve(__dirname, 'dbconfig.js'));
+// db.setup();
+
+// const queries = require(path.resolve(__dirname, "dbquery.js"));
+// queries.setup(connection);
+// connection.query(
+//     "USE USPollutionAtlas1"
 //
-connection.query(
-    "USE USPollutionAtlas1",
-    function(err, results, fields) {
-        console.log(err);
-        console.log(results); // results contains rows returned by server
-        console.log(fields); // fields contains extra meta data about results, if available
-    }
-);
+// );
+// pool.getConnection().then(connection => connection.query('USE USPollutionAtlas1'));
+
 
 //add the router
 app.use('/', router);
@@ -189,28 +191,90 @@ app.put('/basicSearchNew', (req,res) => {
  * WHERE COL11 = VAL12 AND COL22 = VAL22;
  * COMMIT;
  */
-app.put('/update', (req,res) => {
+app.put('/update',  (req,res) => {
     const query = req.body["QUERY"];
-    let dbQuery = `START TRANSACTION;\n`;
+    let dbQuery = '';//`START TRANSACTION; `;
     query.forEach((q) => {
         let update = `UPDATE ${q["UPDATE"]}`;
         let set = Object.entries(q["SET"]).map(k => {return `${k[0]} = ${k[1]}`});
         let where = Object.entries(q["WHERE"]).map(k => { return `${k[0]} = ${k[1]}`});
-        dbQuery += `${update}\nSET ${set.join(', ')}\nWHERE ${where.join(' AND ')};\n`;
+        dbQuery += `${update} SET ${set.join(', ')} WHERE ${where.join(' AND ')}; `;
     });
-    dbQuery += `COMMIT;`;
+   // dbQuery += `COMMIT;`;
     console.log(dbQuery);
+    pool.getConnection()
+        .then(promiseConnection => {
+            let conn = promiseConnection.connection;
+            conn.beginTransaction( (e) => {
+                conn.query('USE USPollutionAtlas1');
+                conn.query(dbQuery, (err, results) => {
+                    if (err) {
+                        console.error(err)
+                        res.send(400)
+                    }
+                    else {
+                        conn.commit(() => conn.release())
+                        console.log(results)
+                        res.send(results)
+                    }
+                })
+            });
+        })
+    // pool.getConnection().then(connection => {
+    //     connection.beginTransaction(() => {
+    //         connection.query(dbQuery).then(() =>
+    //             connection.commit()
+    //         ).then((r) => {
+    //             console.log(r);
+    //             connection.release()
+    //             res.send(r)
+    //         }).catch(
+    //             (err) => {
+    //                 connection.rollback();
+    //                 connection.release();
+    //                 console.error(err);
+    //                 res.send(400)
+    //             }
+    //         )
+    //     })
+    // });
+    // pool.getConnection().then(connection => {
+    //     connection.query(dbQuery).then(() => connection.commit()
+    //         .then((r) => {
+    //             connection.release();
+    //             console.log(r);
+    //             res.send(r);
+    //         }).catch((err) => {
+    //             connection.rollback();
+    //             connection.release();
+    //             console.error(err);
+    //             res.send(400);
+    //         }))
+    // })
+    // connection.beginTransaction().then(() => {
+    //
+    // });
+    // queries.update(connection, dbQuery, res);
     // res.send(dbQuery);
-    connection.query(
-        dbQuery, (err, results, fields) => {
-            console.log(err);
-            console.log(results); // results contains rows returned by server
-            console.log(fields); // fields contains extra meta data about results, if available
-            if(err)
-                res.sendStatus(400);
-            else
-                res.send(results);
-        });
+    // await connection.beginTransaction();
+    // try {
+    //     connection.query(
+    //         dbQuery, (err, results, fields) => {
+    //             console.log(err);
+    //             console.log(results); // results contains rows returned by server
+    //             console.log(fields); // fields contains extra meta data about results, if available
+    //             if (err)
+    //                 res.sendStatus(400);
+    //             else
+    //                 res.send(results);
+    //         });
+    //
+    //     await connection.commit();
+    // }
+    // catch (error) {
+    //     await connection.rollback();
+    //     res.status(400);
+    // }
 });
 
 /**
