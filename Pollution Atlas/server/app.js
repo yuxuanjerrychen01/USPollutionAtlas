@@ -25,21 +25,21 @@ const corsOpts = {
 
 app.use(cors(corsOpts));
 // create the connection to database
-// const connection =  mysql.createConnection({
-//     host: '34.122.96.91',
-//     user: 'root',
-//     password: 'cs411truepikachu'
-//    // database: 'test'
-// });
-// //
-// connection.query(
-//     "USE USPollutionAtlas1",
-//     function(err, results, fields) {
-//         console.log(err);
-//         console.log(results); // results contains rows returned by server
-//         console.log(fields); // fields contains extra meta data about results, if available
-//     }
-// );
+const connection =  mysql.createConnection({
+    host: '34.122.96.91',
+    user: 'root',
+    password: 'cs411truepikachu'
+   // database: 'test'
+});
+//
+connection.query(
+    "USE USPollutionAtlas1",
+    function(err, results, fields) {
+        console.log(err);
+        console.log(results); // results contains rows returned by server
+        console.log(fields); // fields contains extra meta data about results, if available
+    }
+);
 
 //add the router
 app.use('/', router);
@@ -146,6 +146,10 @@ app.put('/basicSearch', (req, res) => {
  *          "AQI" : 5
  *      }
  * }
+ * Runs this query:
+ * SELECT a, b, c
+ * FROM NO2 NATURAL JOIN SO3 NATURAL JOIN location NATURAL JOIN dates
+ * WHERE NO2MEAN = 20 AND AQI = 5;
  */
 app.put('/basicSearchNew', (req,res) => {
     const query = req.body;
@@ -155,15 +159,6 @@ app.put('/basicSearchNew', (req,res) => {
     let dbQuery = `${select}${from}${where};`;
     console.log(dbQuery);
     res.send(dbQuery);
-    // query.forEach((q) => {
-    //     let update = `UPDATE ${q["UPDATE"]}`;
-    //     let set = Object.entries(q["SET"]).map(k => {return `${k[0]} = ${k[1]}`});
-    //     let where = Object.entries(q["WHERE"]).map(k => { return `${k[0]} = ${k[1]}`});
-    //     dbQuery += `${update}\nSET ${set.join(', ')}\nWHERE ${where.join(' AND ')};\n`;
-    // });
-    // dbQuery += `COMMIT;`;
-    // console.log(dbQuery);
-    // res.send(dbQuery);
 });
 
 /**
@@ -196,7 +191,7 @@ app.put('/basicSearchNew', (req,res) => {
  */
 app.put('/update', (req,res) => {
     const query = req.body["QUERY"];
-    let dbQuery = `BEGIN TRANSACTION;\n`;
+    let dbQuery = `START TRANSACTION;\n`;
     query.forEach((q) => {
         let update = `UPDATE ${q["UPDATE"]}`;
         let set = Object.entries(q["SET"]).map(k => {return `${k[0]} = ${k[1]}`});
@@ -205,7 +200,17 @@ app.put('/update', (req,res) => {
     });
     dbQuery += `COMMIT;`;
     console.log(dbQuery);
-    res.send(dbQuery);
+    // res.send(dbQuery);
+    connection.query(
+        dbQuery, (err, results, fields) => {
+            console.log(err);
+            console.log(results); // results contains rows returned by server
+            console.log(fields); // fields contains extra meta data about results, if available
+            if(err)
+                res.sendStatus(400);
+            else
+                res.send(results);
+        });
 });
 
 /**
@@ -236,7 +241,7 @@ app.put('/update', (req,res) => {
  */
 app.put('/delete', (req, res) => {
     const query = req.body["QUERY"];
-    let dbQuery = `BEGIN TRANSACTION;\n`;
+    let dbQuery = `START TRANSACTION;\n`;
     query.forEach((q) => {
         let del = `DELETE FROM ${q["DELETE"]}`;
         let where = Object.entries(q["WHERE"]).map(k => { return `${k[0]} = ${k[1]}`});
@@ -279,7 +284,7 @@ app.put('/delete', (req, res) => {
  */
 app.put('/insert', (req, res) => {
     const query = req.body["QUERY"];
-    let dbQuery = `BEGIN TRANSACTION;\n`;
+    let dbQuery = `START TRANSACTION;\n`;
     query.forEach((q) => {
         // zip source: stack overflow
         const zip = (...arr) => Array(Math.max(...arr.map(a => a.length))).fill().map((_,i) => arr.map(a => a[i]));
