@@ -105,6 +105,10 @@ function Table( {dataEntry} ) {
             ]
         },
         {
+          Header: 'PID',
+          accessor: 'PollutantID',
+        },
+        {
             Header: 'CO Pollutant',
             columns: [
                 {
