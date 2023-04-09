@@ -160,7 +160,25 @@ app.put('/basicSearchNew', (req,res) => {
     let where = `WHERE ${Object.entries(query["WHERE"]).map(k => {return `${k[0]} = ${k[1]}`}).join(' AND ')}`;
     let dbQuery = `${select}${from}${where};`;
     console.log(dbQuery);
-    res.send(dbQuery);
+    pool.getConnection()
+        .then(promiseConnection => {
+            let conn = promiseConnection.connection;
+            conn.beginTransaction( (e) => {
+                conn.query('USE USPollutionAtlas1');
+                conn.query(dbQuery, (err, results) => {
+                    if (err) {
+                        console.error(err)
+                        res.send(400)
+                    }
+                    else {
+                        conn.commit(() => conn.release())
+                        console.log(results)
+                        res.send(results)
+                    }
+                });
+            });
+        })
+    // res.send(dbQuery);
 });
 
 /**
@@ -217,7 +235,7 @@ app.put('/update',  (req,res) => {
                         console.log(results)
                         res.send(results)
                     }
-                })
+                });
             });
         })
     // pool.getConnection().then(connection => {
@@ -305,15 +323,32 @@ app.put('/update',  (req,res) => {
  */
 app.put('/delete', (req, res) => {
     const query = req.body["QUERY"];
-    let dbQuery = `START TRANSACTION;\n`;
+    // let dbQuery = `START TRANSACTION;\n`;
     query.forEach((q) => {
         let del = `DELETE FROM ${q["DELETE"]}`;
         let where = Object.entries(q["WHERE"]).map(k => { return `${k[0]} = ${k[1]}`});
         dbQuery += `${del}\nWHERE ${where.join(' AND ')};\n`;
     });
-    dbQuery += `COMMIT;`;
+    // dbQuery += `COMMIT;`;
     console.log(dbQuery);
-    res.send(dbQuery);
+    pool.getConnection()
+        .then(promiseConnection => {
+            let conn = promiseConnection.connection;
+            conn.beginTransaction( (e) => {
+                conn.query('USE USPollutionAtlas1');
+                conn.query(dbQuery, (err, results) => {
+                    if (err) {
+                        console.error(err)
+                        res.send(400)
+                    }
+                    else {
+                        conn.commit(() => conn.release())
+                        console.log(results)
+                        res.send(results)
+                    }
+                });
+            });
+        })
 });
 
 /**
@@ -348,16 +383,33 @@ app.put('/delete', (req, res) => {
  */
 app.put('/insert', (req, res) => {
     const query = req.body["QUERY"];
-    let dbQuery = `START TRANSACTION;\n`;
+    // let dbQuery = `START TRANSACTION;\n`;
     query.forEach((q) => {
-        // zip source: stack overflow
         const zip = (...arr) => Array(Math.max(...arr.map(a => a.length))).fill().map((_,i) => arr.map(a => a[i]));
         let columnNames = Object.keys(q["VALUES"]);
         let formattedValues = zip(...Object.values(q["VALUES"])).map(e => {return `(${e.toString()})`});
         dbQuery += `INSERT INTO ${q["INSERT"]}\n(${columnNames.toString()})\nVALUES\n${formattedValues.join(', ')};\n`;
     });
-    dbQuery += `COMMIT;`;
+    // dbQuery += `COMMIT;`;
     console.log(dbQuery);
-    res.send(dbQuery);
+    pool.getConnection()
+        .then(promiseConnection => {
+            let conn = promiseConnection.connection;
+            conn.beginTransaction( (e) => {
+                conn.query('USE USPollutionAtlas1');
+                conn.query(dbQuery, (err, results) => {
+                    if (err) {
+                        console.error(err)
+                        res.send(400)
+                    }
+                    else {
+                        conn.commit(() => conn.release())
+                        console.log(results)
+                        res.send(results)
+                    }
+                });
+            });
+        })
+    // res.send(dbQuery);
 });
 app.listen(process.env.PORT || 3002, console.info(`App listening on port ${process.env.PORT}`));
