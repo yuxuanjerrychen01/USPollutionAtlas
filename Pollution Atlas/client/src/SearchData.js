@@ -4,7 +4,7 @@ import Table from "./Table";
 
 function SearchData( {onBack} ) {
     // const [data, setData] = useState("");
-    const [FIPSText, setFIPSText] = useState("e.g. 017019");
+    const [FIPSText, setFIPSText] = useState("e.g. 25025");
     const [dateText, setDateText] = useState("e.g. yyyymmdd");
     const [polluText, setPolluText] = useState("e.g. CO");
 
@@ -33,19 +33,72 @@ function SearchData( {onBack} ) {
 
     const handleGeneralSubmit = async (event) => {
         event.preventDefault();
-        const text = `{
-            "SELECT": {
-                "${selectText}": 1
-            },
-            "FROM": {
-                "${fromText}": 1
-            },
-            "WHERE": {
-                "${whereText1}": ${whereText2}
-            }
-        }`;
+        let flag1 = 0;
+        let flag2 = 0;
+        let flag3 = 0;
+        let text = "";
+        if (fromText.length <= 0) {flag1 = 1;}
+        if (selectText.length <= 0) {flag2 = 1;}
+        if ((whereText1.length <= 0) && (whereText2.length <= 0)) {flag3 = 1;}
+        if ((flag1 > 0) && (flag2 > 0) && (flag3 > 0)) {
+            text = `{
+                "SELECT": [],
+                "FROM": ["CO", "NO2", "SO2", "O3"],
+                "WHERE": []
+            }`;
+        } else if ((flag1 > 0) && (flag2 > 0)) {
+            text = `{
+                "SELECT": [],
+                "FROM": ["CO", "NO2", "SO2", "O3"],
+                "WHERE": {
+                    "${whereText1}": ${whereText2}
+                }
+            }`;
+        } else if ((flag1 > 0) && (flag3 > 0)) {
+            text = `{
+                "SELECT": ["${selectText}"],
+                "FROM": ["CO", "NO2", "SO2", "O3"],
+                "WHERE": []
+            }`;
+        } else if ((flag2 > 0) && (flag3 > 0)) {
+            text = `{
+                "SELECT": [],
+                "FROM": ["${fromText}"],
+                "WHERE": []
+            }`;
+        } else if (flag1 > 0) {
+            text = `{
+                "SELECT": ["${selectText}"],
+                "FROM": ["CO", "NO2", "SO2", "O3"],
+                "WHERE": {
+                    "${whereText1}": ${whereText2}
+                }
+            }`;
+        } else if (flag2 > 0) {
+            text = `{
+                "SELECT": [],
+                "FROM": ["${fromText}"],
+                "WHERE": {
+                    "${whereText1}": ${whereText2}
+                }
+            }`;
+        } else if (flag3 > 0) {
+            text = `{
+                "SELECT": ["${selectText}"],
+                "FROM": ["${fromText}"],
+                "WHERE": []
+            }`;
+        } else {
+            text = `{
+                "SELECT": ["${selectText}"],
+                "FROM": ["${fromText}"],
+                "WHERE": {
+                    "${whereText1}": ${whereText2}
+                }
+            }`;
+        }
         const json_obj = JSON.parse(text);
-        const response = await axios.put("http://localhost:3001/basicSearch", json_obj);
+        const response = await axios.put("http://localhost:3001/basicSearchNew", json_obj);
         const data_array = response.data;
         const thing = <Table dataEntry={data_array}/>
         setTable(thing);
@@ -57,9 +110,9 @@ function SearchData( {onBack} ) {
 
     const handleFIPSSubmit = async (event) => {
         event.preventDefault();
-        const response = await axios.put("http://localhost:3001/basicSearch", {
-            "SELECT": {},
-            "FROM": {},
+        const response = await axios.put("http://localhost:3001/basicSearchNew", {
+            "SELECT": [],
+            "FROM": ["CO", "NO2", "SO2", "O3"],
             "WHERE": {
                 "FIPSCODE": `${FIPSText}`
             }
@@ -77,15 +130,15 @@ function SearchData( {onBack} ) {
         event.preventDefault();
         const response = await axios.put("http://localhost:3001/basicSearchNew", {
             "SELECT": [],
-            "FROM": [],
+            "FROM": ["CO", "NO2", "SO2", "O3"],
             "WHERE": {
                 "YMD": `${dateText}`
             }
         });
         const data_array = response.data;
-        console.log(response);
-        // const thing = <Table dataEntry={data_array}/>
-        // setTable(thing);
+        console.log(data_array);
+        const thing = <Table dataEntry={data_array}/>
+        setTable(thing);
     };
 
     const handlePolluChange = (event) => {
@@ -94,38 +147,11 @@ function SearchData( {onBack} ) {
 
     const handlePolluSubmit = async (event) => {
         event.preventDefault();
-        if (polluText === "CO") {
-            const response = await axios.put("http://localhost:3001/basicSearch", {
-                "SELECT": {},
-                "FROM": {"CO" : 1},
-                "WHERE": {}
-            });
-            const data_array = response.data;
-            const thing = <Table dataEntry={data_array}/>
-            setTable(thing);
-        } else if (polluText === "NO2") {
-            const response = await axios.put("http://localhost:3001/basicSearch", {
-                "SELECT": {},
-                "FROM": {"NO2" : 1},
-                "WHERE": {}
-            });
-            const data_array = response.data;
-            const thing = <Table dataEntry={data_array}/>
-            setTable(thing);
-        } else if (polluText === "SO2") {
-            const response = await axios.put("http://localhost:3001/basicSearch", {
-                "SELECT": {},
-                "FROM": {"SO2" : 1},
-                "WHERE": {}
-            });
-            const data_array = response.data;
-            const thing = <Table dataEntry={data_array}/>
-            setTable(thing);
-        } else if (polluText === "O3") {
-            const response = await axios.put("http://localhost:3001/basicSearch", {
-                "SELECT": {},
-                "FROM": {"O3" : 1},
-                "WHERE": {}
+        if ((polluText === "CO") || (polluText === "NO2") || (polluText === "SO2") || (polluText === "O3")) {
+            const response = await axios.put("http://localhost:3001/basicSearchNew", {
+                "SELECT": [],
+                "FROM": [`${polluText}`],
+                "WHERE": []
             });
             const data_array = response.data;
             const thing = <Table dataEntry={data_array}/>
@@ -137,10 +163,10 @@ function SearchData( {onBack} ) {
 
     const handleBasicSubmit = async (event) => {
         event.preventDefault();
-        const response = await axios.put("http://localhost:3001/basicSearch", {
-            "SELECT": {},
-            "FROM": {},
-            "WHERE": {}
+        const response = await axios.put("http://localhost:3001/basicSearchNew", {
+            "SELECT": [],
+            "FROM": ["CO", "NO2", "SO2", "O3"],
+            "WHERE": []
         });
         const data_array = response.data;
         const thing = <Table dataEntry={data_array}/>
