@@ -78,7 +78,7 @@ app.put('/basicSearch', (req,res) => {
     const query = req.body;
     let select = query["SELECT"].length <= 0 ? 'SELECT *\n' : `SELECT ${query["SELECT"].join(', ')}\n`;
     let from = `FROM ${query["FROM"].join(" NATURAL JOIN ")} NATURAL JOIN location NATURAL JOIN dates\n`;
-    let where = Object.entries(query["WHERE"]).length > 0 ? `${Object.entries(query["WHERE"]).map(k => {return `${k[0]} = ${k[1]}`}).join(' AND ')} ` : "";
+    let where = Object.entries(query["WHERE"]).length > 0 ? `WHERE ${Object.entries(query["WHERE"]).map(k => {return `${k[0]} = ${k[1]}`}).join(' AND ')} ` : "";
     let dbQuery = `${select}${from}${where};`;
     console.log(dbQuery);
     pool.getConnection()
