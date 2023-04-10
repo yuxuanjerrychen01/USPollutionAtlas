@@ -48,85 +48,7 @@ app.get('/',(req,res) => {
    // res.sendFile(path.join(__dirname+'/Frontend/index.html'));
     res.send('HELLO WORLD')
 });
-/**
- * Expected format for JSON:
- * {
- *     "SELECT": {
- *         <field> : 1
- *          ...
- *     },
- *
- *     "FROM": {
- *         <tableName> : 1,
- *         ...
- *     },
- *
- *     "WHERE": {
- *         <field>: value
- *         ...
- *     }
- * }
- */
-app.put('/basicSearch', (req, res) => {
-   let select = req.body["SELECT"];
-   let from = req.body["FROM"];
-   let where = req.body["WHERE"];
 
-   const selectArray = Object.entries(select);
-   const fromArray = Object.entries(from);
-   const whereArray = Object.entries(where);
-
-   // Build select string
-   let selectString = 'SELECT ';
-   if (Object.keys(select).length <= 0)
-       selectString = 'SELECT * ';
-   selectArray.forEach((e, i)=> {
-       // console.log(`${key[0]}${key[1]}`);
-       if (i === selectArray.length - 1)
-           selectString += `${e[0]} `;
-       else
-           selectString += `${e[0]}, `;
-   });
-
-   // Build from string
-    let fromString = "FROM ";
-
-    if(fromArray.length <= 0) {
-        fromString += "NO2 NATURAL JOIN CO NATURAL JOIN SO2 NATURAL JOIN O3 ";
-    }
-    fromArray.forEach((e, i) => {
-        if(i === fromArray.length - 1)
-            fromString += `${e[0]} `;
-        else
-            fromString += `${e[0]} NATURAL JOIN `;
-    });
-    fromString += "NATURAL JOIN location NATURAL JOIN dates ";
-
-    // Build where string
-    let whereString = "WHERE ";
-    if(whereArray.length <= 0)
-        whereString = "";
-
-    whereArray.forEach((e,i) => {
-        if(i === whereArray.length - 1)
-            whereString += `${e[0]} = ${e[1]} `;
-        else
-            whereString += `${e[0]} = ${e[1]} AND `;
-    });
-    const query = `${selectString}${fromString}${whereString}`;
-    console.log(query);
-    // run the query
-    connection.query(
-    query, (err, results, fields) => {
-        console.log(err);
-        console.log(results); // results contains rows returned by server
-        console.log(fields); // fields contains extra meta data about results, if available
-        if(err)
-            res.sendStatus(400);
-        else
-            res.send(results);
-    });
-});
 /**
  * Going to replace the old search
  * Expected format for JSON:
@@ -152,7 +74,7 @@ app.put('/basicSearch', (req, res) => {
  * FROM NO2 NATURAL JOIN SO3 NATURAL JOIN location NATURAL JOIN dates
  * WHERE NO2MEAN = 20 AND AQI = 5;
  */
-app.put('/basicSearchNew', (req,res) => {
+app.put('/basicSearch', (req,res) => {
     const query = req.body;
     let select = query["SELECT"].length <= 0 ? 'SELECT *\n' : `SELECT ${query["SELECT"].join(', ')}\n`;
     let from = `FROM ${query["FROM"].join(" NATURAL JOIN ")} NATURAL JOIN location NATURAL JOIN dates\n`;
@@ -178,7 +100,6 @@ app.put('/basicSearchNew', (req,res) => {
                 });
             });
         })
-    // res.send(dbQuery);
 });
 
 /**
