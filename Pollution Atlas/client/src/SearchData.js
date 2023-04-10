@@ -44,7 +44,7 @@ function SearchData( {onBack} ) {
             text = `{
                 "SELECT": [],
                 "FROM": ["CO", "NO2", "SO2", "O3"],
-                "WHERE": []
+                "WHERE": {}
             }`;
         } else if ((flag1 > 0) && (flag2 > 0)) {
             text = `{
@@ -58,13 +58,13 @@ function SearchData( {onBack} ) {
             text = `{
                 "SELECT": ["${selectText}"],
                 "FROM": ["CO", "NO2", "SO2", "O3"],
-                "WHERE": []
+                "WHERE": {}
             }`;
         } else if ((flag2 > 0) && (flag3 > 0)) {
             text = `{
                 "SELECT": [],
                 "FROM": ["${fromText}"],
-                "WHERE": []
+                "WHERE": {}
             }`;
         } else if (flag1 > 0) {
             text = `{
@@ -86,7 +86,7 @@ function SearchData( {onBack} ) {
             text = `{
                 "SELECT": ["${selectText}"],
                 "FROM": ["${fromText}"],
-                "WHERE": []
+                "WHERE": {}
             }`;
         } else {
             text = `{
@@ -98,7 +98,7 @@ function SearchData( {onBack} ) {
             }`;
         }
         const json_obj = JSON.parse(text);
-        const response = await axios.put("http://localhost:3001/basicSearchNew", json_obj);
+        const response = await axios.put("http://localhost:3001/basicSearch", json_obj);
         const data_array = response.data;
         const thing = <Table dataEntry={data_array}/>
         setTable(thing);
@@ -110,7 +110,7 @@ function SearchData( {onBack} ) {
 
     const handleFIPSSubmit = async (event) => {
         event.preventDefault();
-        const response = await axios.put("http://localhost:3001/basicSearchNew", {
+        const response = await axios.put("http://localhost:3001/basicSearch", {
             "SELECT": [],
             "FROM": ["CO", "NO2", "SO2", "O3"],
             "WHERE": {
@@ -128,7 +128,7 @@ function SearchData( {onBack} ) {
 
     const handleDateSubmit = async (event) => {
         event.preventDefault();
-        const response = await axios.put("http://localhost:3001/basicSearchNew", {
+        const response = await axios.put("http://localhost:3001/basicSearch", {
             "SELECT": [],
             "FROM": ["CO", "NO2", "SO2", "O3"],
             "WHERE": {
@@ -148,10 +148,10 @@ function SearchData( {onBack} ) {
     const handlePolluSubmit = async (event) => {
         event.preventDefault();
         if ((polluText === "CO") || (polluText === "NO2") || (polluText === "SO2") || (polluText === "O3")) {
-            const response = await axios.put("http://localhost:3001/basicSearchNew", {
+            const response = await axios.put("http://localhost:3001/basicSearch", {
                 "SELECT": [],
                 "FROM": [`${polluText}`],
-                "WHERE": []
+                "WHERE": {}
             });
             const data_array = response.data;
             const thing = <Table dataEntry={data_array}/>
@@ -163,10 +163,10 @@ function SearchData( {onBack} ) {
 
     const handleBasicSubmit = async (event) => {
         event.preventDefault();
-        const response = await axios.put("http://localhost:3001/basicSearchNew", {
+        const response = await axios.put("http://localhost:3001/basicSearch", {
             "SELECT": [],
             "FROM": ["CO", "NO2", "SO2", "O3"],
-            "WHERE": []
+            "WHERE": {}
         });
         const data_array = response.data;
         const thing = <Table dataEntry={data_array}/>
