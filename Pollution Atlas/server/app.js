@@ -176,7 +176,7 @@ app.put('/update',  (req,res) => {
  * {
  *     "QUERY":  [
  *         {"DELETE": "NO2", "WHERE": {"COL11":"VAL12", "COL22":"VAL22"}},
- *         {"UPDATE": "O3", "WHERE": {"COL11":"VAL12", "COL22":"VAL22"}}
+ *         {"DELETE": "O3", "WHERE": {"COL11":"VAL12", "COL22":"VAL22"}}
  *     ]
  * }
  * Runs this query:
@@ -189,7 +189,7 @@ app.put('/update',  (req,res) => {
  */
 app.put('/delete', (req, res) => {
     const query = req.body["QUERY"];
-    // let dbQuery = `START TRANSACTION;\n`;
+    let dbQuery = '';
     query.forEach((q) => {
         let del = `DELETE FROM ${q["DELETE"]}`;
         let where = Object.entries(q["WHERE"]).map(k => { return `${k[0]} = ${k[1]}`});
@@ -281,7 +281,7 @@ app.put('/insert', (req, res) => {
 });
 /**
  * Returns the MAX AQI data for each fipscode
- * Expected format for JSON (All arrays for the `VALUES` key MUST be the same length within each object):
+ * Expected format for JSON:
  * {
  *  "QUERY": [<pollutantType>, ...]
  * }
@@ -302,6 +302,47 @@ app.put('/maxAqi', (req, res) => {
     let select = `SELECT FIPSCODE, ${query.map(q => {return `MAX(\`${q} AQI\`)`}).join(', ')}\n`;
     let from = `FROM ${query.join(' NATURAL JOIN ')} NATURAL JOIN dates\n`;
     let dbQuery = `${select}${from}GROUP BY FIPSCODE;`;
+    console.log(dbQuery);
+    pool.getConnection()
+        .then(promiseConnection => {
+            let conn = promiseConnection.connection;
+            conn.beginTransaction( (e) => {
+                conn.query('USE USPollutionAtlas1');
+                conn.query(dbQuery, (err, results) => {
+                    if (err) {
+                        console.error(err)
+                        res.send(400)
+                    }
+                    else {
+                        conn.commit(() => conn.release())
+                        console.log(results)
+                        res.send(results)
+                    }
+                });
+            });
+        });
+});
+/**
+ * Returns the counties where a given pollutant is present above average
+ * Expected format for JSON:
+ * {
+ *  "QUERY": <pollutantType>
+ * }
+ * Example JSON:
+ * {
+ *     "QUERY": "NO2"
+ * }
+ * Runs this query:
+ * BEGIN TRANSACTION;
+ * SELECT CountyName, AVG(`NO2 MEAN`)
+ * FROM location NATURAL JOIN NO2
+ * GROUP BY CountyName
+ * HAVING AVG(`NO2 MEAN`) > (SELECT AVG(`NO2 MEAN`) FROM NO2);
+ * COMMIT;
+ */
+app.put('/aboveAveragePollutant', (req, res) => {
+    const pollutant = req.body["QUERY"];
+    let dbQuery = `SELECT CountyName, AVG(\`${pollutant} MEAN\`)\nFROM location NATURAL JOIN ${pollutant}\nGROUP BY CountyName\nHAVING AVG(\`${pollutant} MEAN\`) > (SELECT AVG(\`${pollutant} MEAN\`) FROM ${pollutant});`
     console.log(dbQuery);
     pool.getConnection()
         .then(promiseConnection => {
