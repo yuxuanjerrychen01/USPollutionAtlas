@@ -3,11 +3,11 @@ import axios from "axios";
 import Table from "./Table";
 
 function UpdateData( {onBack} ) {
-    const [fromText, setFromText] = useState("e.g. SO2");
-    const [whereText1, setWhereText1] = useState("e.g. FIPSCODE");
-    const [whereText2, setWhereText2] = useState("e.g. 25025");
-    const [updateText1, setUpdateText1] = useState("e.g. `SO2 MEAN`");
-    const [updateText2, setUpdateText2] = useState("e.g. 7");
+    const [fromText, setFromText] = useState("e.g. NO2");
+    const [whereText1, setWhereText1] = useState("e.g. YMD");
+    const [whereText2, setWhereText2] = useState("e.g. 20160226");
+    const [updateText1, setUpdateText1] = useState("e.g. `NO2 MEAN`");
+    const [updateText2, setUpdateText2] = useState("e.g. 11.0");
     const [output, setOutput] = useState("");
 
     const handleFromTextChange = (event) => {
@@ -47,9 +47,9 @@ function UpdateData( {onBack} ) {
             const json_obj = JSON.parse(text);
             const response = await axios.put("http://localhost:3001/update", json_obj);
             console.log(response);
-            // let successText = "UPDATE " + fromText + " SET " + updateText1 + " = " + updateText2 + 
-            // " WHERE " + whereText1 + " = " + whereText2 + " -- successfully updated :)";
-            // setOutput(successText);
+            let successText = "UPDATE " + fromText + " SET " + updateText1 + " = " + updateText2 + 
+            " WHERE " + whereText1 + " = " + whereText2 + " -- successfully updated :)";
+            setOutput(successText);
         }
     };
 
