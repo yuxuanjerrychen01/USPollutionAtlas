@@ -163,6 +163,7 @@ app.put('/basicSearchNew', (req,res) => {
     pool.getConnection()
         .then(promiseConnection => {
             let conn = promiseConnection.connection;
+
             conn.beginTransaction( (e) => {
                 conn.query('USE USPollutionAtlas1');
                 conn.query(dbQuery, (err, results) => {
@@ -412,4 +413,48 @@ app.put('/insert', (req, res) => {
         })
     // res.send(dbQuery);
 });
+/**
+ * Returns the MAX AQI data for each fipscode
+ * Expected format for JSON (All arrays for the `VALUES` key MUST be the same length within each object):
+ * {
+ *  "QUERY": [<pollutantType>, ...]
+ * }
+ * Example JSON:
+ * {
+ *     "QUERY": ["SO2", "O3", "NO2", "CO"]
+ * }
+ * Runs this query:
+ * BEGIN TRANSACTION;
+ * SELECT FIPSCODE, MAX(`SO2 AQI`), MAX(`O3 AQI`), MAX(`NO2 AQI`), MAX(`CO AQI`)
+ * FROM SO2 NATURAL JOIN O3 NATURAL JOIN NO2 NATURAL JOIN CO NATURAL JOIN dates
+ * GROUP BY FIPSCODE;
+ * COMMIT;
+ */
+app.put('/maxAqi', (req, res) => {
+    const query = req.body["QUERY"];
+    // let selection = query.map(q => {return `MAX(\`${q} AQI\`)`});
+    let select = `SELECT FIPSCODE, ${query.map(q => {return `MAX(\`${q} AQI\`)`}).join(', ')}\n`;
+    let from = `FROM ${query.join(' NATURAL JOIN ')} NATURAL JOIN dates\n`;
+    let dbQuery = `${select}${from}GROUP BY FIPSCODE;`;
+    console.log(dbQuery);
+    pool.getConnection()
+        .then(promiseConnection => {
+            let conn = promiseConnection.connection;
+            conn.beginTransaction( (e) => {
+                conn.query('USE USPollutionAtlas1');
+                conn.query(dbQuery, (err, results) => {
+                    if (err) {
+                        console.error(err)
+                        res.send(400)
+                    }
+                    else {
+                        conn.commit(() => conn.release())
+                        console.log(results)
+                        res.send(results)
+                    }
+                });
+            });
+        });
+});
+
 app.listen(process.env.PORT || 3002, console.info(`App listening on port ${process.env.PORT}`));
