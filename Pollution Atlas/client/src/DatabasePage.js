@@ -2,6 +2,7 @@ import SearchData from "./SearchData";
 import InsertData from "./InsertData";
 import UpdateData from "./UpdateData";
 import DeleteData from "./DeleteData";
+import SpecialData from "./SpecialData";
 import { useState } from "react";
 
 function DatabasePage() {
@@ -27,6 +28,12 @@ function DatabasePage() {
 
     const handleDeleteClick = () => {
         setDel(!del);
+    }
+
+    const [special, setSpecial] = useState(false);
+
+    const handleSpecialClick = () => {
+        setSpecial(!special);
     }
 
     const searchBlock = (<div>
@@ -61,12 +68,21 @@ function DatabasePage() {
             </button>
     </div>)
 
+    const specialBlock = (<div>
+        <h2>Other Procedures</h2>
+        Want to do some advanced searching?
+            <button className="button-blue" onClick={handleSpecialClick}>
+                advanced search data!
+            </button>
+    </div>)
+
 
     let totalBlock = (<div>
         {searchBlock}
         {insertBlock}
         {updateBlock}
         {deleteBlock}
+        {specialBlock}
     </div>)
 
     if (search) {
@@ -77,6 +93,8 @@ function DatabasePage() {
         totalBlock = <UpdateData onBack={handleUpdateClick}/>;
     } else if (del) {
         totalBlock = <DeleteData onBack={handleDeleteClick}/>;
+    } else if (special) {
+        totalBlock = <SpecialData onBack={handleSpecialClick}/>;
     }
 
 
