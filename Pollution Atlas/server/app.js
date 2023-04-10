@@ -9,8 +9,6 @@ require('dotenv').config()
 router.use(express.json());
 // get the client
 const mysql = require('mysql2/promise');
-// const db = require('mysql2/promise');
-// const mysql = require('mysql2');
 const corsOpts = {
     origin: '*',
 
@@ -28,7 +26,8 @@ app.use(cors(corsOpts));
 const pool = mysql.createPool({
     host: '34.122.96.91',
     user: 'root',
-    password: 'cs411truepikachu'
+    password: 'cs411truepikachu',
+    multipleStatements: true
    // database: 'test'
 });
 // const db = require(path.resolve(__dirname, 'dbconfig.js'));
@@ -157,7 +156,7 @@ app.put('/basicSearchNew', (req,res) => {
     const query = req.body;
     let select = query["SELECT"].length <= 0 ? 'SELECT *\n' : `SELECT ${query["SELECT"].join(', ')}\n`;
     let from = `FROM ${query["FROM"].join(" NATURAL JOIN ")} NATURAL JOIN location NATURAL JOIN dates\n`;
-    let where = `WHERE ${Object.entries(query["WHERE"]).map(k => {return `${k[0]} = ${k[1]}`}).join(' AND ')}`;
+    let where = Object.entries(query["WHERE"]).length > 0 ? `${Object.entries(query["WHERE"]).map(k => {return `${k[0]} = ${k[1]}`}).join(' AND ')} ` : "";
     let dbQuery = `${select}${from}${where};`;
     console.log(dbQuery);
     pool.getConnection()
@@ -239,61 +238,6 @@ app.put('/update',  (req,res) => {
                 });
             });
         })
-    // pool.getConnection().then(connection => {
-    //     connection.beginTransaction(() => {
-    //         connection.query(dbQuery).then(() =>
-    //             connection.commit()
-    //         ).then((r) => {
-    //             console.log(r);
-    //             connection.release()
-    //             res.send(r)
-    //         }).catch(
-    //             (err) => {
-    //                 connection.rollback();
-    //                 connection.release();
-    //                 console.error(err);
-    //                 res.send(400)
-    //             }
-    //         )
-    //     })
-    // });
-    // pool.getConnection().then(connection => {
-    //     connection.query(dbQuery).then(() => connection.commit()
-    //         .then((r) => {
-    //             connection.release();
-    //             console.log(r);
-    //             res.send(r);
-    //         }).catch((err) => {
-    //             connection.rollback();
-    //             connection.release();
-    //             console.error(err);
-    //             res.send(400);
-    //         }))
-    // })
-    // connection.beginTransaction().then(() => {
-    //
-    // });
-    // queries.update(connection, dbQuery, res);
-    // res.send(dbQuery);
-    // await connection.beginTransaction();
-    // try {
-    //     connection.query(
-    //         dbQuery, (err, results, fields) => {
-    //             console.log(err);
-    //             console.log(results); // results contains rows returned by server
-    //             console.log(fields); // fields contains extra meta data about results, if available
-    //             if (err)
-    //                 res.sendStatus(400);
-    //             else
-    //                 res.send(results);
-    //         });
-    //
-    //     await connection.commit();
-    // }
-    // catch (error) {
-    //     await connection.rollback();
-    //     res.status(400);
-    // }
 });
 
 /**
@@ -385,6 +329,7 @@ app.put('/delete', (req, res) => {
 app.put('/insert', (req, res) => {
     const query = req.body["QUERY"];
     // let dbQuery = `START TRANSACTION;\n`;
+    let dbQuery = '';
     query.forEach((q) => {
         const zip = (...arr) => Array(Math.max(...arr.map(a => a.length))).fill().map((_,i) => arr.map(a => a[i]));
         let columnNames = Object.keys(q["VALUES"]);
