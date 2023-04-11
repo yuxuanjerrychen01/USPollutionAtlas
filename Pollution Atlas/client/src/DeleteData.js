@@ -34,9 +34,36 @@ function DeleteData( {onBack} ) {
             }`;
             console.log(text);
             const json_obj = JSON.parse(text);
-            // const response = await axios.put("http://localhost:3001/delete", json_obj);
-            // console.log(response);
+            const response = await axios.put("http://localhost:3001/delete", json_obj);
+            console.log(response);
             let successText = "DELETE " + fromText +  " WHERE " + whereText1 + " = " + whereText2 + " -- successfully deleted :)";
+            setOutput(successText);
+        } else if (fromText.length <= 0) {
+            const text = `{
+                "QUERY": [
+                    {
+                        "DELETE": "CO", 
+                        "WHERE" : {"${whereText1}": ${whereText2}}
+                    },
+                    {
+                        "DELETE": "SO2", 
+                        "WHERE" : {"${whereText1}": ${whereText2}}
+                    },
+                    {
+                        "DELETE": "NO2", 
+                        "WHERE" : {"${whereText1}": ${whereText2}}
+                    },
+                    {
+                        "DELETE": "O3", 
+                        "WHERE" : {"${whereText1}": ${whereText2}}
+                    }
+                ]
+            }`;
+            console.log(text);
+            const json_obj = JSON.parse(text);
+            const response = await axios.put("http://localhost:3001/delete", json_obj);
+            console.log(response);
+            let successText = "DELETE CO, SO2, NO2, O3 WHERE " + whereText1 + " = " + whereText2 + " -- successfully deleted :)";
             setOutput(successText);
         }
     };
