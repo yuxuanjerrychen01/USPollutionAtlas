@@ -1,39 +1,25 @@
 import { useState } from "react";
 import axios from "axios";
 import TableAQI from "./TableAQI";
+import TableAVG from "./TableAVG";
 
 function SpecialData( {onBack} ) {
-    const [fromText, setFromText] = useState("e.g. NO2");
-    // const [whereText1, setWhereText1] = useState("e.g. YMD");
-    // const [whereText2, setWhereText2] = useState("e.g. 20160226");
-    // const [updateText1, setUpdateText1] = useState("e.g. `NO2 MEAN`");
-    // const [updateText2, setUpdateText2] = useState("e.g. 11.0");
-    const [tableAQI, setTableAQI] = useState("");
+    const [from1Text, setFrom1Text] = useState("e.g. SO2");
+    const [from2Text, setFrom2Text] = useState("e.g. NO2");
+    const [table, setTable] = useState("");
 
-    const handleFromTextChange = (event) => {
-        setFromText(event.target.value);
+    const handleFrom1TextChange = (event) => {
+        setFrom1Text(event.target.value);
     };
 
-    // const handleWhereText1Change = (event) => {
-    //     setWhereText1(event.target.value);
-    // };
-
-    // const handleWhereText2Change = (event) => {
-    //     setWhereText2(event.target.value);
-    // };
-
-    // const handleUpdateText1Change = (event) => {
-    //     setUpdateText1(event.target.value);
-    // };
-
-    // const handleUpdateText2Change = (event) => {
-    //     setUpdateText2(event.target.value);
-    // };
+    const handleFrom2TextChange = (event) => {
+        setFrom2Text(event.target.value);
+    };
 
     const handleAQISubmit = async (event) => {
         event.preventDefault();
         let text = "";
-        if ((fromText.length <= 0)) {
+        if ((from1Text.length <= 0)) {
             text = `{
                 "QUERY": ["CO", "NO2", "SO2", "O3"]
             }`;
@@ -42,19 +28,39 @@ function SpecialData( {onBack} ) {
             console.log(response);
             const data_array = response.data;
             const thing = <TableAQI dataEntry={data_array}/>
-            setTableAQI(thing);
-        } else if ((text == "C0") || (text == "S02") || (text == "N02") || (text == "03")) {
+            setTable(thing);
+        } else if ((from1Text === "CO") || (from1Text === "SO2") || (from1Text === "NO2") || (from1Text === "O3")) {
             text = `{
-                "QUERY": ["${fromText}"]
+                "QUERY": ["${from1Text}"]
             }`;
             const json_obj = JSON.parse(text);
             const response = await axios.put("http://localhost:3001/maxAqi", json_obj);
             console.log(response);
             const data_array = response.data;
             const thing = <TableAQI dataEntry={data_array}/>
-            setTableAQI(thing);
+            setTable(thing);
         } else {
-            setTableAQI("bad table name :(");
+            setTable("bad table name :(");
+        }
+    };
+
+    const handleAverageSubmit = async (event) => {
+        event.preventDefault();
+        let text = "";
+        if ((from2Text.length <= 0)) {
+            setTable("needs a table name :(");
+        } else if ((from2Text === "CO") || (from2Text === "SO2") || (from2Text === "NO2") || (from2Text === "O3")) {
+            text = `{
+                "QUERY": ["${from2Text}"]
+            }`;
+            const json_obj = JSON.parse(text);
+            const response = await axios.put("http://localhost:3001/aboveAveragePollutant", json_obj);
+            console.log(response);
+            const data_array = response.data;
+            const thing = <TableAVG dataEntry={data_array}/>
+            setTable(thing);
+        } else {
+            setTable("bad table name :(");
         }
     };
 
@@ -80,7 +86,28 @@ function SpecialData( {onBack} ) {
                     What tables do you wish to look at?
                 </label>
                 <br></br>
-                <input className="input" onChange={handleFromTextChange} value={fromText}/>
+                <br></br>
+                <input className="input" onChange={handleFrom1TextChange} value={from1Text}/>
+                <br></br>
+                <br></br>
+                <button className="button-blue">
+                    submit
+                </button>
+            </form>
+            </div>
+
+            <br></br>
+
+            <div>
+            <h2>Locations with average pollutant values greater than total average.</h2>
+            
+            <form onSubmit={handleAverageSubmit}>
+                <label>
+                    What tables do you wish to look at?
+                </label>
+                <br></br>
+                <br></br>
+                <input className="input" onChange={handleFrom2TextChange} value={from2Text}/>
                 <br></br>
                 <br></br>
                 <button className="button-blue">
@@ -103,7 +130,7 @@ function SpecialData( {onBack} ) {
             <br></br>
 
             <h2>Results:</h2>
-            {tableAQI}
+            {table}
         </div>
     )
 }
