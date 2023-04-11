@@ -22,9 +22,9 @@ function DeleteData( {onBack} ) {
 
     const handleUpdateSubmit = async (event) => {
         event.preventDefault();
-        if ((fromText.length <= 0) || (whereText1.length <= 0) || (whereText2.length <= 0)) {
+        if ((whereText1.length <= 0) || (whereText2.length <= 0)) {
             setOutput("bad submit, entries should not be empty :(");
-        } else {
+        } else if (fromText.length > 0) {
             const text = `{
                 "QUERY": 
                 [{
