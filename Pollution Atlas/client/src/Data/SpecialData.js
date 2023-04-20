@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
-import TableAQI from "./TableAQI";
-import TableAVG from "./TableAVG";
+import TableAQI from "../Tables/TableAQI";
+import TableAVG from "../Tables/TableAVG";
 
 function SpecialData( {onBack} ) {
     const [from1Text, setFrom1Text] = useState("e.g. SO2");

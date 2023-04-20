@@ -1,11 +1,13 @@
 import { useState } from "react";
 import axios from "axios";
-import Table from "./Table";
+import Table from "../Tables/Table";
 
-function DeleteData( {onBack} ) {
-    const [fromText, setFromText] = useState("e.g. SO2");
-    const [whereText1, setWhereText1] = useState("e.g. FIPSCODE");
-    const [whereText2, setWhereText2] = useState("e.g. 25025");
+function UpdateData( {onBack} ) {
+    const [fromText, setFromText] = useState("e.g. NO2");
+    const [whereText1, setWhereText1] = useState("e.g. YMD");
+    const [whereText2, setWhereText2] = useState("e.g. 20160226");
+    const [updateText1, setUpdateText1] = useState("e.g. `NO2 MEAN`");
+    const [updateText2, setUpdateText2] = useState("e.g. 11.0");
     const [output, setOutput] = useState("");
 
     const handleFromTextChange = (event) => {
@@ -20,50 +22,33 @@ function DeleteData( {onBack} ) {
         setWhereText2(event.target.value);
     };
 
+    const handleUpdateText1Change = (event) => {
+        setUpdateText1(event.target.value);
+    };
+
+    const handleUpdateText2Change = (event) => {
+        setUpdateText2(event.target.value);
+    };
+
     const handleUpdateSubmit = async (event) => {
         event.preventDefault();
-        if ((whereText1.length <= 0) || (whereText2.length <= 0)) {
+        if ((fromText.length <= 0) || (updateText1.length <= 0) || (updateText2.length <= 0) || (whereText1.length <= 0) || (whereText2.length <= 0)) {
             setOutput("bad submit, entries should not be empty :(");
-        } else if (fromText.length > 0) {
+        } else {
             const text = `{
                 "QUERY": 
                 [{
-                    "DELETE": "${fromText}", 
+                    "UPDATE": "${fromText}", 
+                    "SET" : {"${updateText1}": ${updateText2}}, 
                     "WHERE" : {"${whereText1}": ${whereText2}}
                 }]
             }`;
             console.log(text);
             const json_obj = JSON.parse(text);
-            const response = await axios.put("http://localhost:3001/delete", json_obj);
+            const response = await axios.put("http://localhost:3001/update", json_obj);
             console.log(response);
-            let successText = "DELETE " + fromText +  " WHERE " + whereText1 + " = " + whereText2 + " -- successfully deleted :)";
-            setOutput(successText);
-        } else if (fromText.length <= 0) {
-            const text = `{
-                "QUERY": [
-                    {
-                        "DELETE": "CO", 
-                        "WHERE" : {"${whereText1}": ${whereText2}}
-                    },
-                    {
-                        "DELETE": "SO2", 
-                        "WHERE" : {"${whereText1}": ${whereText2}}
-                    },
-                    {
-                        "DELETE": "NO2", 
-                        "WHERE" : {"${whereText1}": ${whereText2}}
-                    },
-                    {
-                        "DELETE": "O3", 
-                        "WHERE" : {"${whereText1}": ${whereText2}}
-                    }
-                ]
-            }`;
-            console.log(text);
-            const json_obj = JSON.parse(text);
-            const response = await axios.put("http://localhost:3001/delete", json_obj);
-            console.log(response);
-            let successText = "DELETE CO, SO2, NO2, O3 WHERE " + whereText1 + " = " + whereText2 + " -- successfully deleted :)";
+            let successText = "UPDATE " + fromText + " SET " + updateText1 + " = " + updateText2 + 
+            " WHERE " + whereText1 + " = " + whereText2 + " -- successfully updated :)";
             setOutput(successText);
         }
     };
@@ -83,11 +68,11 @@ function DeleteData( {onBack} ) {
             </div>
 
             <div>
-            <h2>Basic deleting.</h2>
+            <h2>Basic updating.</h2>
             
             <form onSubmit={handleUpdateSubmit}>
                 <label>
-                    What tables do you wish to delete data from?
+                    What tables do you wish to look at?
                 </label>
                 <br></br>
                 <input className="input" onChange={handleFromTextChange} value={fromText}/>
@@ -100,6 +85,14 @@ function DeleteData( {onBack} ) {
                     = &nbsp;
                 <input className="input" onChange={handleWhereText2Change} value={whereText2}/>
                 <br></br>
+                <label>
+                    What do you want to update?
+                </label>
+                <br></br>
+                <input className="input" onChange={handleUpdateText1Change} value={updateText1}/>
+                    = &nbsp;
+                <input className="input" onChange={handleUpdateText2Change} value={updateText2}/>
+                <br></br>
                 <br></br>
                 <button className="button-blue">
                     submit
@@ -110,7 +103,7 @@ function DeleteData( {onBack} ) {
             <br></br>
 
             <div>
-            <h2>Advanced deleting.</h2>
+            <h2>Advanced updating.</h2>
             <form>
                 <label>
                     Currently in progress.
@@ -126,4 +119,4 @@ function DeleteData( {onBack} ) {
     )
 }
 
-export default DeleteData;
+export default UpdateData;

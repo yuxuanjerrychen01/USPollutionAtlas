@@ -1,8 +1,9 @@
-import SearchData from "./SearchData";
-import InsertData from "./InsertData";
-import UpdateData from "./UpdateData";
-import DeleteData from "./DeleteData";
-import SpecialData from "./SpecialData";
+import SearchData from "./Data/SearchData";
+import InsertData from "./Data/InsertData";
+import UpdateData from "./Data/UpdateData";
+import DeleteData from "./Data/DeleteData";
+import SpecialData from "./Data/SpecialData";
+import VisualMap from "./USMap/VisualMap";
 import { useState } from "react";
 
 function DatabasePage() {
@@ -34,6 +35,12 @@ function DatabasePage() {
 
     const handleSpecialClick = () => {
         setSpecial(!special);
+    }
+
+    const [visual, setVisual] = useState(false);
+
+    const handleVisualClick = () => {
+        setVisual(!visual);
     }
 
     const searchBlock = (<div>
@@ -76,6 +83,14 @@ function DatabasePage() {
             </button>
     </div>)
 
+    const visualBlock = (<div>
+        <h2>US Map Visualization</h2>
+        Want to look at data on a map?
+            <button className="button-blue" onClick={handleVisualClick}>
+                US map!
+            </button>
+    </div>)
+
 
     let totalBlock = (<div>
         {searchBlock}
@@ -83,6 +98,7 @@ function DatabasePage() {
         {updateBlock}
         {deleteBlock}
         {specialBlock}
+        {visualBlock}
     </div>)
 
     if (search) {
@@ -95,7 +111,9 @@ function DatabasePage() {
         totalBlock = <DeleteData onBack={handleDeleteClick}/>;
     } else if (special) {
         totalBlock = <SpecialData onBack={handleSpecialClick}/>;
-    }
+    } else if (visual) {
+        totalBlock = <VisualMap onBack={handleVisualClick}/>;
+    } 
 
 
     return (

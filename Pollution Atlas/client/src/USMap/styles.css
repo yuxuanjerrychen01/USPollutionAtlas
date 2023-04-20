@@ -1,0 +1,9 @@
+body {
+margin: 0;
+padding: 0 20rem;
+}
+
+svg {
+display: inline-block;
+vertical-align: middle;
+}

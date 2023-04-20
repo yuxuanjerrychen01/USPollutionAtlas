@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import Table from "./Table";
+import Table from "../Tables/Table";
 
 function SearchData( {onBack} ) {
     // const [data, setData] = useState("");
