@@ -51,8 +51,18 @@ function App() {
     return (
         <div>
             <h1 className="centering-h1">US Pollution Atlas</h1>
-
             {landpage}
+            <form>
+                <br></br>
+                <label>UserName  </label>
+                <input className="input" />
+                <br></br>
+                <label>Password    </label>
+                <input className="input" />
+                <button className="button-blue">login</button>
+                <br></br>
+            </form>
+
         </div>
     );
 }
