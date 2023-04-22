@@ -30,17 +30,6 @@ const pool = mysql.createPool({
     multipleStatements: true
    // database: 'test'
 });
-// const db = require(path.resolve(__dirname, 'dbconfig.js'));
-// db.setup();
-
-// const queries = require(path.resolve(__dirname, "dbquery.js"));
-// queries.setup(connection);
-// connection.query(
-//     "USE USPollutionAtlas1"
-//
-// );
-// pool.getConnection().then(connection => connection.query('USE USPollutionAtlas1'));
-
 
 //add the router
 app.use('/', router);
@@ -344,6 +333,36 @@ app.put('/aboveAveragePollutant', (req, res) => {
     const pollutant = req.body["QUERY"];
     let dbQuery = `SELECT CountyName, AVG(\`${pollutant} MEAN\`)\nFROM location NATURAL JOIN ${pollutant}\nGROUP BY CountyName\nHAVING AVG(\`${pollutant} MEAN\`) > (SELECT AVG(\`${pollutant} MEAN\`) FROM ${pollutant});`
     console.log(dbQuery);
+    pool.getConnection()
+        .then(promiseConnection => {
+            let conn = promiseConnection.connection;
+            conn.beginTransaction( (e) => {
+                conn.query('USE USPollutionAtlas1');
+                conn.query(dbQuery, (err, results) => {
+                    if (err) {
+                        console.error(err)
+                        res.send(400)
+                    }
+                    else {
+                        conn.commit(() => conn.release())
+                        console.log(results)
+                        res.send(results)
+                    }
+                });
+            });
+        });
+});
+
+/**
+ * Returns the average pollution for each state
+ * SELECT StateName, AVG(`SO2 MEAN`) AS SO2, AVG(`O3 MEAN`) AS O3, AVG(`NO2 MEAN`) AS NO2, AVG(`CO MEAN`) AS CO
+ * FROM SO2 NATURAL JOIN O3 NATURAL JOIN NO2 NATURAL JOIN CO NATURAL JOIN location
+ * GROUP BY StateName;
+ */
+app.get('/statePollution', (req, res) => {
+    const dbQuery = 'SELECT StateName, AVG(`SO2 MEAN`) AS SO2, AVG(`O3 MEAN`) AS O3, AVG(`NO2 MEAN`) AS NO2, AVG(`CO MEAN`) AS CO\n' +
+        'FROM SO2 NATURAL JOIN O3 NATURAL JOIN NO2 NATURAL JOIN CO NATURAL JOIN location\n' +
+        'GROUP BY StateName;'
     pool.getConnection()
         .then(promiseConnection => {
             let conn = promiseConnection.connection;
