@@ -422,4 +422,47 @@ app.put('/login', (req, res) => {
         });
 })
 
+/**
+ * Creates a new user
+ * Expected format for JSON:
+ * {
+ *     "FirstName": <FirstName>,
+ *     "LastName": <LastName>,
+ *     "EmailAddress": <EmailAddress>,
+ *     "UserRole": <UserRole>,
+ *     "Username": <Username>,
+ *     "Password": <Password>
+ * }
+ * Example JSON:
+ * {
+ *     "Username": "'truepikachu'",
+ *     "Password": "123456"
+ * }
+ */
+app.put('/login', (req, res) => {
+    let user = req.body['Username']
+    let pass = req.body['Password']
+    let dbQuery = `SELECT UserID FROM userLogin WHERE Username = ${user} AND Password = ${pass};`
+    pool.getConnection()
+        .then(promiseConnection => {
+            let conn = promiseConnection.connection;
+            conn.beginTransaction( (e) => {
+                conn.query('USE USPollutionAtlas1');
+                conn.query(dbQuery, (err, results) => {
+                    if (err) {
+                        console.error(err)
+                        res.send(400)
+                    }
+                    else {
+                        conn.commit(() => conn.release())
+                        if (results.length < 1)
+                            res.sendStatus(401)
+                        else
+                            res.sendStatus(200)
+                    }
+                });
+            });
+        });
+})
+
 app.listen(process.env.PORT || 3002, console.info(`App listening on port ${process.env.PORT}`));
