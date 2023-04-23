@@ -4,7 +4,7 @@ import Table from "../Tables/Table";
 
 function SearchData( {onBack} ) {
     // const [data, setData] = useState("");
-    const [FIPSText, setFIPSText] = useState("e.g. 25025");
+    const [FIPSText, setFIPSText] = useState("e.g. 48113");
     const [dateText, setDateText] = useState("e.g. yyyymmdd");
     const [polluText, setPolluText] = useState("e.g. CO");
 
@@ -193,7 +193,7 @@ function SearchData( {onBack} ) {
             
             <form onSubmit={handleFIPSSubmit}>
                 <label>
-                    Search using FIPS. A valid example would be 25025 (which is Suffolk, Massachusetts).
+                    Search using FIPS. A valid example would be 48113 (which is Dallas, Texas).
                 </label>
                 <br></br>
                 <input className="input" onChange={handleFIPSChange} value={FIPSText}/>
