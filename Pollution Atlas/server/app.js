@@ -399,7 +399,7 @@ app.get('/statePollution', (req, res) => {
 app.put('/login', (req, res) => {
     let user = req.body['Username']
     let pass = req.body['Password']
-    let dbQuery = `SELECT UserID FROM userLogin WHERE Username = ${user} AND Password = ${pass};`
+    let dbQuery = `SELECT UserID FROM userLogin WHERE Username = "${user}" AND Password = "${pass}";`
     pool.getConnection()
         .then(promiseConnection => {
             let conn = promiseConnection.connection;
