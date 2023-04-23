@@ -6,7 +6,7 @@ import SpecialData from "./Data/SpecialData";
 import VisualMap from "./USMap/VisualMap";
 import { useState } from "react";
 
-function DatabasePage() {
+function DatabasePage( {onLogout} ) {
     const [search, setSearch] = useState(false);
 
     const handleSearchClick = () => {
@@ -41,6 +41,10 @@ function DatabasePage() {
 
     const handleVisualClick = () => {
         setVisual(!visual);
+    }
+
+    const handleLogoutClick = () => {
+        onLogout();
     }
 
     const searchBlock = (<div>
@@ -99,6 +103,12 @@ function DatabasePage() {
         {deleteBlock}
         {specialBlock}
         {visualBlock}
+        <br></br>
+        <br></br>
+        <br></br>
+        <button className="button-green" onClick={handleLogoutClick}>
+            log out!
+        </button>
     </div>)
 
     if (search) {

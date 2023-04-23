@@ -1,12 +1,40 @@
 import { useState } from "react";
 import DatabasePage from "./DatabasePage";
+import UserLogin from "./User/UserLogin";
+import UserSignup from "./User/UserSignup";
 
 function App() {
-    const [login, setLogin] = useState(0);
+    const [login, setLogin] = useState(false);
+    const [signup, setSignup] = useState(false);
+    const [success, setSuccess] = useState(0);
+    const [fail, setFail] = useState("");
 
-    const handleClick = () => {
-       setLogin(1);
-    }
+    const handleLoginClick = () => {
+        setFail("");
+        setLogin(!login);
+    };
+
+    const handleSignupClick = () => {
+        setSignup(!signup);
+    };
+
+    const handleSuccessLogin = () => {
+        setFail("");
+        setSuccess(1);
+    };
+
+    const handleSuccessLogout = () => {
+        setFail("");
+        setSuccess(0);
+    };
+
+    const handleFailLogin_Signup = () => {
+        setFail("Bad username/password. Please try again.");
+    };
+
+    const handleSuccessSignup = () => {
+        setFail("");
+    };
 
     const introduction = <div>
         <p className="centering-p">
@@ -35,24 +63,40 @@ function App() {
         </p> 
     </div>
 
-    let landpage = <div>
-        {introduction}
-        <br></br>
+    let login_signup = <div>
         <div className="centering-h1">
-        <button onClick={handleClick} className="button-blue">
+        <button onClick={handleLoginClick} className="button-blue">
             Login!
+        </button>
+        <button onClick={handleSignupClick} className="button-blue">
+            Sign-up!
         </button>
         </div>
     </div>
 
-    if (login !== 0) {landpage = <DatabasePage />}
+    let landpage = <div>
+        {introduction}
+        <br></br>
+    </div>
+
+    if (login !== false) {login_signup = <UserLogin onFail={handleFailLogin_Signup} onLogin={handleSuccessLogin} onBack={handleLoginClick} />}
+    else if (signup !== false) {login_signup = <UserSignup onFail={handleFailLogin_Signup} onSignup={handleSuccessSignup} onBack={handleSignupClick} />};
+
+    if (success !== 0) {
+        landpage = <DatabasePage onLogout={handleSuccessLogout}/>;
+        login_signup = "";
+    };
 
 
     return (
         <div>
             <h1 className="centering-h1">US Pollution Atlas</h1>
-
             {landpage}
+            {login_signup}
+
+            <br></br>
+
+            <h2 className="centering-h1">{fail}</h2>
         </div>
     );
 }
