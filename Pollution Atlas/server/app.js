@@ -91,6 +91,28 @@ app.put('/basicSearch', (req,res) => {
         })
 });
 
+app.get('/showAQITable', (req, res) => {
+    pool.getConnection()
+        .then(promiseConnection => {
+            let conn = promiseConnection.connection;
+
+            conn.beginTransaction( (e) => {
+                conn.query('USE USPollutionAtlas1');
+                conn.query('SELECT * FROM AQITable ORDER BY AVGAQI DESC', (err, results) => {
+                    if (err) {
+                        console.error(err)
+                        res.send(400)
+                    }
+                    else {
+                        conn.commit(() => conn.release())
+                        console.log(results)
+                        res.send(results)
+                    }
+                });
+            });
+        })
+})
+
 /**
  * Updates tables in the DB
  * Expected format for JSON:
