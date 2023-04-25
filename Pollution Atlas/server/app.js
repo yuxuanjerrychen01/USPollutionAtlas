@@ -450,16 +450,26 @@ app.put('/login', (req, res) => {
  * Create the table for AQIs greater than some threshold
  * Expected format for JSON:
  * {
+ *      "pollutant": <value>
  *      "threshold" : <value>
  * }
  * Example JSON:
  * {
+ *     "pollutant": "SO2"
  *     "threshold": 2.0,
  * }
  */
 app.put('/makeAQITable', (req, res) => {
     let threshold = req.body['threshold'];
-    let dbQuery = `CALL BestAQI(${threshold})`;
+    let dbQuery = ``;
+    if (req.body['pollutant'] === 'O3')
+        dbQuery = `CALL BestAQIO3(${threshold})`;
+    if (req.body['pollutant'] === 'SO2')
+        dbQuery = `CALL BestAQISO2(${threshold})`;
+    if (req.body['pollutant'] === 'CO')
+        dbQuery = `CALL BestAQICO(${threshold})`;
+    if (req.body['pollutant'] === 'NO2')
+        dbQuery = `CALL BestAQINO2(${threshold})`;
     pool.getConnection()
         .then(promiseConnection => {
             let conn = promiseConnection.connection;
