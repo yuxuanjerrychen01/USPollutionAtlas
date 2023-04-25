@@ -92,15 +92,26 @@ app.put('/basicSearch', (req,res) => {
 });
 /**
  * Show the AQITable
+ * query: pollutant
  */
 app.get('/showAQITable', (req, res) => {
+    let pollutant = req.query.pollutant;
+    let tableName = '';
+    if (pollutant === 'SO2')
+        tableName = 'SO2AQITable';
+    if (pollutant === 'O3')
+        tableName = 'O3AQITable';
+    if (pollutant === 'CO')
+        tableName = 'COAQITable';
+    if (pollutant === 'NO2')
+        tableName = 'NO2AQITable';
     pool.getConnection()
         .then(promiseConnection => {
             let conn = promiseConnection.connection;
 
             conn.beginTransaction( (e) => {
                 conn.query('USE USPollutionAtlas1');
-                conn.query('SELECT * FROM AQITable ORDER BY AVGAQI DESC', (err, results) => {
+                conn.query(`SELECT * FROM ${tableName}`, (err, results) => {
                     if (err) {
                         console.error(err)
                         res.send(400)
