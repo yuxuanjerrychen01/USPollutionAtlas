@@ -90,7 +90,9 @@ app.put('/basicSearch', (req,res) => {
             });
         })
 });
-
+/**
+ * Show the AQITable
+ */
 app.get('/showAQITable', (req, res) => {
     pool.getConnection()
         .then(promiseConnection => {
