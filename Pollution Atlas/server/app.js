@@ -422,5 +422,41 @@ app.put('/login', (req, res) => {
         });
 })
 
+/**
+ * Create the table for AQIs greater than some threshold
+ * Expected format for JSON:
+ * {
+ *      "threshold" : <value>
+ * }
+ * Example JSON:
+ * {
+ *     "threshold": 2.0,
+ * }
+ */
+app.put('/makeAQITable', (req, res) => {
+    let threshold = req.body['threshold'];
+    let dbQuery = `CALL BestAQI(${threshold})`;
+    pool.getConnection()
+        .then(promiseConnection => {
+            let conn = promiseConnection.connection;
+            conn.beginTransaction( (e) => {
+                conn.query('USE USPollutionAtlas1');
+                conn.query(dbQuery, (err, results) => {
+                    if (err) {
+                        console.error(err)
+                        res.send(400)
+                    }
+                    else {
+                        conn.commit(() => conn.release())
+                        if (results.length < 1)
+                            res.sendStatus(401)
+                        else
+                            res.sendStatus(200)
+                    }
+                });
+            });
+        });
+});
+
 
 app.listen(process.env.PORT || 3002, console.info(`App listening on port ${process.env.PORT}`));
