@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import TableAQI from "../Tables/TableAQI";
 import TableAVG from "../Tables/TableAVG";
+import TableThres from "../Tables/TableThres";
 
 function SpecialData( {onBack} ) {
     const [from1Text, setFrom1Text] = useState("e.g. SO2");
@@ -91,14 +92,14 @@ function SpecialData( {onBack} ) {
             }`;
             console.log(text1);
             const json_obj1 = JSON.parse(text1);
-            console.log(json_obj1);
+            // console.log(json_obj1);
             const response1 = await axios.put("http://localhost:3001/makeAQITable", json_obj1);
-            console.log(response1);
-            const response2 = await axios.get(`http://localhost:3001/showAQITable?query=${AQIText}`);
+            // console.log(response1);
+            const response2 = await axios.get(`http://localhost:3001/showAQITable/?pollutant=${AQIText}`);
             console.log(response2);
-            // const data_array = response.data;
-            // const thing = <TableAVG dataEntry={data_array}/>
-            // setTable(thing);
+            const data_array = response2.data;
+            const thing = <TableThres dataEntry={data_array} />
+            setTable(thing);
         } else {
             setTable("bad table name :(");
         }
