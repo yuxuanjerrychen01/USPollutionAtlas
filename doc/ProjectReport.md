@@ -66,3 +66,6 @@ To improve our visualization for the pollutant map, we plan to incorporate addit
 In the proposal, we divide the work to frontend, backend, and the full stack. In the actual process, we mainly just focus on frontend and backend. The frontend team mainly focuses on designing the user interface, developing interactive visualizations, and creating a user-friendly experience for our users. The backend team, on the other hand, was responsible for developing the server-side infrastructure, handling the pollutant data, and creating SQL query to satisfy the different requests received from the frontend. 
 
 Overall, our team works well. We discuss a lot, and help each other when they are needed. We also made sure to give each team member autonomy and the freedom to work on their assigned tasks, while still ensuring that everyone had a clear understanding of the project goals and timeline.
+
+### 11. Video link
+https://www.youtube.com/watch?v=anXB1nVsMdA
