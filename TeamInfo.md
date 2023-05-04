@@ -20,8 +20,8 @@
 |   Info      |        Description     |
 | ----------- | ---------------------- |
 |  Title      |   US Pollution Atlas   |
-| System URL  |      link_to_system    |
-| Video Link  |      link_to_video     |
+| System URL  |      [https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu](https://github.com/cs411-alawini/sp23-cs411-team079-TruePikachu)    |
+| Video Link  |      [https://youtu.be/anXB1nVsMdA](https://youtu.be/anXB1nVsMdA)     |
 
 ## Project Summary
 
